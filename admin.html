@@ -7,29 +7,38 @@
   <link rel="stylesheet" href="admin.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Metal&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
   <style>
+    /* CSS Tambahan agar Layout Rapi */
     .dashboard-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 30px; }
     .card { background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center; }
     .card h3 { font-size: 2rem; margin: 10px 0; color: #d63384; font-family: 'Metal', serif; }
+    
     .table-container { background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 15px; text-align: left; border-bottom: 1px solid #eee; }
     th { background: #f8f8f8; font-weight: 600; color: #333; }
+    
     .status-select { padding: 5px; border-radius: 5px; border: 1px solid #ddd; background: white; cursor: pointer; }
+    .btn-action { background: #333; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; }
+    .btn-action:hover { background: #555; }
+    .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .thumb-small { width: 40px; height: 40px; border-radius: 4px; object-fit: cover; }
   </style>
 </head>
 
 <body>
 
 <div class="admin-wrapper">
+
   <aside class="sidebar">
     <h2 class="logo">Fairy<br>Garden</h2>
     <nav>
       <ul>
         <li class="active" id="menu-dashboard" onclick="loadPage('dashboard')">Dashboard</li>
         <li id="menu-orders" onclick="loadPage('orders')">Pesanan</li>
-        <li id="menu-products" onclick="alert('Coming Soon')">Produk</li>
-        <li id="menu-customers" onclick="alert('Coming Soon')">Pelanggan</li>
+        <li id="menu-products" onclick="loadPage('products')">Produk</li>
+        <li id="menu-customers" onclick="loadPage('customers')">Pelanggan</li>
       </ul>
     </nav>
     <button id="adminLogout" class="logout-btn">Logout</button>
@@ -37,110 +46,230 @@
 
   <main id="contentArea">
     <h2 style="margin-top:20px; text-align:center;">Memuat Data...</h2>
-    <p id="debugInfo" style="text-align:center; color:red; font-size:12px;"></p>
   </main>
+
 </div>
 
 <script>
+  // 1. SETUP
   const API_URL = "https://fairygarden-backend.vercel.app/api";
   const token = localStorage.getItem("token");
   const userData = JSON.parse(localStorage.getItem("userData") || "{}");
 
-  // === DEBUGGING LOG ===
-  // Kita tampilkan apa yang sebenarnya dibaca oleh browser
-  console.log("DEBUG INFO:");
-  console.log("Token:", token);
-  console.log("Role di LocalStorage:", userData.role);
+  // 2. CEK ADMIN
+  if (!token || userData.role !== 'admin') {
+      alert("Akses Ditolak! Anda bukan Admin.");
+      localStorage.clear();
+      window.location.href = "index.html";
+  }
 
-  // HAPUS BLOCKING FRONTEND SEMENTARA
-  // Biarkan request jalan dulu, nanti kalau server nolak (403), baru kita kick.
-  
+  // 3. NAVIGASI HALAMAN
   function loadPage(page) {
       document.querySelectorAll('nav li').forEach(li => li.classList.remove('active'));
       document.getElementById(`menu-${page}`).classList.add('active');
+
       if (page === 'dashboard') renderDashboard();
       if (page === 'orders') renderOrders();
+      if (page === 'products') renderProducts();
+      if (page === 'customers') renderCustomers();
   }
 
+  // =========================================
+  // HALAMAN DASHBOARD (ADA AKTIVITAS TERBARU)
+  // =========================================
   async function renderDashboard() {
       const content = document.getElementById("contentArea");
-      const debugEl = document.getElementById("debugInfo");
-      
+      content.innerHTML = "<h3>Memuat Dashboard...</h3>";
+
       try {
-          // Coba akses Endpoint Admin
-          const res = await fetch(`${API_URL}/admin/stats`, {
-              headers: { Authorization: `Bearer ${token}` }
+          // Fetch Stats
+          const resStats = await fetch(`${API_URL}/admin/stats`, { headers: { Authorization: `Bearer ${token}` } });
+          const stats = await resStats.json();
+
+          // Fetch Recent Orders (Ambil 5 Terbaru)
+          const resOrders = await fetch(`${API_URL}/admin/orders`, { headers: { Authorization: `Bearer ${token}` } });
+          let orders = await resOrders.json();
+          orders = orders.slice(0, 5); // Ambil 5 saja
+
+          // Render Tabel Aktivitas
+          let activityRows = "";
+          orders.forEach(order => {
+              activityRows += `
+                <tr>
+                    <td>#${order.order_id}</td>
+                    <td>${order.recipient_name}</td>
+                    <td>Rp ${parseFloat(order.total_price).toLocaleString("id-ID")}</td>
+                    <td><span style="padding:4px 8px; border-radius:4px; font-size:12px; background:${getStatusColor(order.status)}">${order.status}</span></td>
+                </tr>
+              `;
           });
 
-          // TANGKAP ERROR DARI SERVER
-          if (res.status === 403 || res.status === 401) {
-              const data = await res.json();
-              content.innerHTML = `
-                  <div style="text-align:center; margin-top:50px;">
-                      <h1 style="color:red; font-size:50px;"><i class="fa-solid fa-ban"></i></h1>
-                      <h2>Akses Ditolak oleh Server</h2>
-                      <p>Server Back-End bilang: <b>${data.error || 'Unauthorized'}</b></p>
-                      <p>Data di Browser kamu: Role = <b>${userData.role}</b></p>
-                      <br>
-                      <button onclick="forceLogout()" style="padding:10px 20px; background:red; color:white; border:none; cursor:pointer;">
-                        FIX: KLIK DISINI UNTUK LOGIN ULANG
-                      </button>
-                  </div>
-              `;
-              return;
-          }
-
-          const data = await res.json();
           content.innerHTML = `
             <h1>Dashboard Overview</h1>
             <div class="dashboard-cards">
-                <div class="card"><p>Total Pesanan</p><h3>${data.totalOrders || 0}</h3></div>
-                <div class="card"><p>Total User</p><h3>${data.totalUsers || 0}</h3></div>
-                <div class="card"><p>Produk</p><h3>${data.totalProducts || 0}</h3></div>
-                <div class="card"><p>Pendapatan</p><h3>Rp ${parseInt(data.revenue || 0).toLocaleString('id-ID')}</h3></div>
+                <div class="card"><p>Total Pesanan</p><h3>${stats.totalOrders}</h3></div>
+                <div class="card"><p>Total User</p><h3>${stats.totalUsers}</h3></div>
+                <div class="card"><p>Produk</p><h3>${stats.totalProducts}</h3></div>
+                <div class="card"><p>Pendapatan</p><h3>Rp ${parseInt(stats.revenue).toLocaleString('id-ID')}</h3></div>
+            </div>
+            
+            <div class="header-flex">
+                <h3>Aktivitas Terbaru (5 Pesanan Terakhir)</h3>
+                <button class="btn-action" onclick="loadPage('orders')">Lihat Semua</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>ID</th><th>Penerima</th><th>Total</th><th>Status</th></tr></thead>
+                    <tbody>${activityRows || '<tr><td colspan="4" style="text-align:center">Belum ada aktivitas.</td></tr>'}</tbody>
+                </table>
             </div>
           `;
-      } catch (err) {
-          content.innerHTML = `<p style="color:red">Error Teknis: ${err.message}</p>`;
-      }
+      } catch (err) { content.innerHTML = `<p style="color:red">Gagal: ${err.message}</p>`; }
   }
 
+  // =========================================
+  // HALAMAN PESANAN (SEMUA)
+  // =========================================
   async function renderOrders() {
       const content = document.getElementById("contentArea");
+      content.innerHTML = "<h3>Memuat Pesanan...</h3>";
       try {
-          const res = await fetch(`${API_URL}/admin/orders`, {
-              headers: { Authorization: `Bearer ${token}` }
-          });
-          
-          if (!res.ok) throw new Error("Gagal ambil data (Cek status Admin)");
-          
+          const res = await fetch(`${API_URL}/admin/orders`, { headers: { Authorization: `Bearer ${token}` } });
           const orders = await res.json();
+          
           let rows = "";
           orders.forEach(order => {
               rows += `
                 <tr>
                     <td>#${order.order_id}</td>
-                    <td><b>${order.recipient_name}</b></td>
+                    <td>
+                        <b>${order.recipient_name}</b><br>
+                        <small>${order.delivery_date} (${order.delivery_time})</small>
+                    </td>
                     <td>Rp ${parseFloat(order.total_price).toLocaleString("id-ID")}</td>
-                    <td>${order.status}</td>
-                    <td>${order.payment_method}</td>
+                    <td>
+                        <select class="status-select" onchange="updateStatus(${order.order_id}, this.value)" style="background:${getStatusColor(order.status)}">
+                            <option value="DIPROSES" ${order.status === 'DIPROSES' ? 'selected' : ''}>Diproses</option>
+                            <option value="DIKIRIM" ${order.status === 'DIKIRIM' ? 'selected' : ''}>Dikirim</option>
+                            <option value="SELESAI" ${order.status === 'SELESAI' ? 'selected' : ''}>Selesai</option>
+                            <option value="BATAL" ${order.status === 'BATAL' ? 'selected' : ''}>Batal</option>
+                        </select>
+                    </td>
                 </tr>`;
           });
 
-          content.innerHTML = `<h1>Pesanan</h1><div class="table-container"><table><thead><tr><th>ID</th><th>Penerima</th><th>Total</th><th>Status</th><th>Bayar</th></tr></thead><tbody>${rows}</tbody></table></div>`;
-      } catch (err) {
-          content.innerHTML = `<p style="color:red">${err.message}</p>`;
-      }
+          content.innerHTML = `
+            <h1>Kelola Pesanan</h1>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>ID</th><th>Info Pengiriman</th><th>Total</th><th>Status</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
+      } catch (e) { content.innerHTML = "Gagal memuat pesanan."; }
   }
 
-  function forceLogout() {
-      localStorage.clear();
-      window.location.href = "index.html";
+  // =========================================
+  // HALAMAN PRODUK
+  // =========================================
+  async function renderProducts() {
+      const content = document.getElementById("contentArea");
+      content.innerHTML = "<h3>Memuat Produk...</h3>";
+      try {
+          const res = await fetch(`${API_URL}/products`); // Public Endpoint
+          const products = await res.json();
+
+          let rows = "";
+          products.forEach(p => {
+              // Fix Image URL
+              let img = p.image_url;
+              if (img && !img.startsWith('http')) img = `${API_URL.replace('/api','')}/uploads/${img}`;
+
+              rows += `
+                <tr>
+                    <td><img src="${img}" class="thumb-small"></td>
+                    <td><b>${p.product_name}</b></td>
+                    <td>Rp ${p.price.toLocaleString("id-ID")}</td>
+                    <td>${p.stock}</td>
+                    <td>${p.sold}</td>
+                    <td>
+                        <button class="btn-action" onclick="alert('Fitur Edit akan datang!')">Edit</button>
+                    </td>
+                </tr>`;
+          });
+
+          content.innerHTML = `
+            <div class="header-flex">
+                <h1>Daftar Produk</h1>
+                <button class="btn-action" style="background:#d63384; padding:10px;" onclick="alert('Fitur Tambah Produk akan datang!')">+ Tambah Produk</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>Gbr</th><th>Nama</th><th>Harga</th><th>Stok</th><th>Terjual</th><th>Aksi</th></tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>`;
+      } catch (e) { content.innerHTML = "Gagal memuat produk."; }
   }
 
-  document.getElementById("adminLogout").addEventListener("click", forceLogout);
+  // =========================================
+  // HALAMAN PELANGGAN (USERS)
+  // =========================================
+  async function renderCustomers() {
+      const content = document.getElementById("contentArea");
+      content.innerHTML = "<h3>Memuat Pelanggan...</h3>";
+      try {
+          const res = await fetch(`${API_URL}/admin/users`, { headers: { Authorization: `Bearer ${token}` } });
+          const users = await res.json();
 
+          let rows = "";
+          users.forEach(u => {
+              rows += `
+                <tr>
+                    <td>${u.first_name} ${u.last_name || ''}</td>
+                    <td>${u.email}</td>
+                    <td>${u.phone || '-'}</td>
+                    <td>${new Date(u.created_at).toLocaleDateString("id-ID")}</td>
+                </tr>`;
+          });
+
+          content.innerHTML = `
+            <h1>Daftar Pelanggan</h1>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>Nama</th><th>Email</th><th>No. HP</th><th>Bergabung</th></tr></thead>
+                    <tbody>${rows || '<tr><td colspan="4">Belum ada pelanggan.</td></tr>'}</tbody>
+                </table>
+            </div>`;
+      } catch (e) { content.innerHTML = "Gagal memuat pelanggan. Cek Backend."; }
+  }
+
+  // Helper & Fungsi Lain
+  async function updateStatus(id, newStatus) {
+      if(!confirm(`Update status #${id} ke ${newStatus}?`)) return;
+      await fetch(`${API_URL}/admin/orders/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ status: newStatus })
+      });
+      alert("Berhasil!"); renderOrders(); // Refresh
+  }
+
+  function getStatusColor(status) {
+      if(status === 'DIPROSES') return '#fff3cd';
+      if(status === 'DIKIRIM') return '#cff4fc';
+      if(status === 'SELESAI') return '#d1e7dd';
+      if(status === 'BATAL') return '#f8d7da';
+      return '#fff';
+  }
+
+  document.getElementById("adminLogout").addEventListener("click", () => {
+      localStorage.clear(); window.location.href = "index.html";
+  });
+
+  // Load Awal
   loadPage('dashboard');
+
 </script>
 </body>
 </html>
