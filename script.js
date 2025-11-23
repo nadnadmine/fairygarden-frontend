@@ -1,243 +1,320 @@
-// Pastikan baris ini sudah mengarah ke Vercel Backend kamu
-const API_URL = "https://fairygarden-backend.vercel.app/api";
+// ==========================================
+// 1. KONFIGURASI KONEKSI (HUBUNGKAN KE VERCEL)
+// ==========================================
+const API_URL = "https://fairygarden-backend.vercel.app/api"; 
 
-// ========== MODAL LOGIN / SIGNUP / FORGOT PASSWORD ==========
+// Variabel penampung produk (akan diisi oleh Database)
+let products = {}; 
+
+// Elemen Modal & Tombol
 const loginModal = document.getElementById("loginModal");
 const signupModal = document.getElementById("signupModal");
 const forgotModal = document.getElementById("forgotModal");
-
-const userIcon = document.querySelector("header .fa-user"); // ✅ lebih spesifik
 const closeBtns = document.querySelectorAll(".close-btn");
 const signupLinks = document.querySelectorAll(".signup-link");
 const loginLinks = document.querySelectorAll(".login-link");
 const forgotLinks = document.querySelectorAll(".forgot");
 const cancelBtns = document.querySelectorAll(".cancel-btn");
 
-// === OPEN MODALS ===
-if (userIcon) {
-  userIcon.addEventListener("click", (e) => {
-    const isLoggedIn = localStorage.getItem("isLoggedIn") === "true";
+// ==========================================
+// 2. FUNGSI AMBIL PRODUK DARI DATABASE (AUTO RUN)
+// ==========================================
+async function loadProducts() {
+    try {
+        const response = await fetch(`${API_URL}/products`);
+        
+        if (!response.ok) throw new Error("Gagal mengambil data produk");
 
-    if (isLoggedIn) {
-      // Sudah login → ke profile
-      window.location.href = "profile.html";
-    } else {
-      // Belum login → buka modal login
-      e.preventDefault();
-      if (loginModal) loginModal.style.display = "flex";
+        const data = await response.json();
+
+        // Masukkan data dari Database ke variabel products
+        data.forEach(item => {
+            // Logic Gambar: Jika link http/https pakai langsung, jika nama file sesuaikan path
+            let imageSrc = item.image_url;
+            if (imageSrc && !imageSrc.startsWith('http')) {
+                // Hapus /api di ujung link untuk akses folder uploads
+                imageSrc = `${API_URL.replace('/api', '')}/uploads/${imageSrc}`;
+            }
+
+            products[item.product_id] = {
+                id: item.product_id,
+                name: item.product_name,
+                price: parseInt(item.price),
+                desc: item.description,
+                img: imageSrc,
+                stock: item.stock
+            };
+        });
+
+        // Jika user sedang membuka halaman detail, refresh tampilannya
+        initProductDetail();
+
+    } catch (error) {
+        console.error("Error loading products:", error);
     }
-  });
 }
 
-// ========== LOGIN HANDLER ==========
-if (loginModal) {
-  const loginBtn = document.getElementById("mainLoginBtn") || loginModal.querySelector(".login-btn");
-  const loginInputs = loginModal.querySelectorAll("input");
+// Jalankan fungsi ini saat website pertama kali dibuka
+loadProducts();
 
-  if (loginBtn) {
-    loginBtn.addEventListener("click", (e) => {
-      e.preventDefault();
 
-      const email = loginInputs[0].value.trim().toLowerCase();
-      const password = loginInputs[1].value.trim();
+// ==========================================
+// 3. GLOBAL EVENT LISTENER (NAVIGASI & KLIK)
+// ==========================================
+document.addEventListener("click", (e) => {
+    
+    // A. LOGIC TOMBOL PROFIL (ICON USER)
+    if (e.target.matches(".fa-user") || e.target.closest("#userButton") || e.target.closest(".fa-user")) {
+        e.preventDefault();
+        const token = localStorage.getItem("token");
 
-      // === ADMIN LOGIN ===
-      if (email === "admin@fairygarden.com" && password === "admin123") {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userRole", "admin");
-        alert("Login berhasil sebagai ADMIN 🌸");
-        window.location.href = "admin.html";
-        return;
-      }
-
-      // === USER LOGIN ===
-      const users = JSON.parse(localStorage.getItem("users")) || [];
-      const found = users.find(u => u.email.toLowerCase() === email && u.password === password);
-
-      if (found) {
-        localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("userRole", "user");
-        localStorage.setItem("userData", JSON.stringify(found)); // ini yg dibaca profile.html
-        alert(`Selamat datang kembali, ${found.firstName}! 🌸`);
-        window.location.href = "profile.html";
-      } else {
-        alert("Email atau password salah.");
-      }
-    });
-  }
-}
-
-/* === SIGN UP === */
-if (signupModal) {
-  const signupForm = document.getElementById("signupForm");
-
-  // Pastikan tidak double listener
-  signupForm.replaceWith(signupForm.cloneNode(true));
-  const newSignupForm = document.getElementById("signupForm");
-
-  newSignupForm.addEventListener("submit", (e) => {
-    e.preventDefault();
-
-    const newUser = {
-      firstName: document.getElementById("firstName").value.trim(),
-      lastName: document.getElementById("lastName").value.trim(),
-      phone: document.getElementById("phone").value.trim(),
-      email: document.getElementById("email").value.trim().toLowerCase(),
-      password: document.getElementById("password").value.trim(),
-    };
-
-    // Validasi input wajib
-    if (!newUser.firstName || !newUser.email || !newUser.password) {
-      alert("Mohon isi semua data wajib 🌸");
-      return;
+        if (token) {
+            // Jika punya token, masuk ke profile
+            window.location.href = "profile.html";
+        } else {
+            // Jika tidak, buka modal login
+            if (loginModal) loginModal.style.display = "flex";
+        }
     }
 
-    // Ambil user list
-    let users = JSON.parse(localStorage.getItem("users")) || [];
+    // B. LOGIC TUTUP MODAL (KLIK DI LUAR)
+    if (e.target === loginModal) loginModal.style.display = "none";
+    if (e.target === signupModal) signupModal.style.display = "none";
+    if (e.target === forgotModal) forgotModal.style.display = "none";
 
-    // Cek duplikat email
-    const exists = users.some(u => u.email && u.email.toLowerCase() === newUser.email);
-    if (exists) {
-      alert("Email sudah terdaftar 🌸 Silakan gunakan email lain atau login.");
-      return;
+    // C. LOGIC QUANTITY CART (+/-)
+    if (e.target.classList.contains("plus") || e.target.classList.contains("minus")) {
+        handleQuantityChange(e);
     }
-
-    // Simpan akun baru
-    users.push(newUser);
-    localStorage.setItem("users", JSON.stringify(users));
-
-    // Langsung login otomatis
-    localStorage.setItem("isLoggedIn", "true");
-    localStorage.setItem("userRole", "user");
-    localStorage.setItem("userData", JSON.stringify(newUser));
-
-    alert(`Akun berhasil dibuat! Selamat datang, ${newUser.firstName} 🌷`);
-
-    // Tutup modal dan langsung ke profile
-    signupModal.classList.remove("show");
-    window.location.href = "profile.html";
-  });
-}
-
-// ========== CLOSE MODAL ==========
-closeBtns.forEach(btn => btn.addEventListener("click", () => {
-  [loginModal, signupModal, forgotModal].forEach(m => m && (m.style.display = "none"));
-}));
-
-signupLinks.forEach(link => link.addEventListener("click", e => {
-  e.preventDefault();
-  if (loginModal) loginModal.style.display = "none";
-  if (signupModal) signupModal.style.display = "flex";
-}));
-
-loginLinks.forEach(link => link.addEventListener("click", e => {
-  e.preventDefault();
-  [signupModal, forgotModal].forEach(m => m && (m.style.display = "none"));
-  if (loginModal) loginModal.style.display = "flex";
-}));
-
-forgotLinks.forEach(link => link.addEventListener("click", e => {
-  e.preventDefault();
-  if (loginModal) loginModal.style.display = "none";
-  if (forgotModal) forgotModal.style.display = "flex";
-}));
-
-cancelBtns.forEach(btn => btn.addEventListener("click", () => {
-  if (forgotModal) forgotModal.style.display = "none";
-  if (loginModal) loginModal.style.display = "flex";
-}));
-
-window.addEventListener("click", (e) => {
-  if ([loginModal, signupModal, forgotModal].includes(e.target)) {
-    [loginModal, signupModal, forgotModal].forEach(m => m && (m.style.display = "none"));
-  }
 });
 
-// ========== PRODUK DATABASE ==========
-const products = {
-  "rose-harmony": { name: "Rose Harmony", price: 250000, desc: "Kombinasi mawar merah muda dan putih.", img: "https://i.pinimg.com/564x/7e/f4/26/7ef426d43798f93b8e3dc0f2ad8bbcd5.jpg" },
-  "daisy-charm": { name: "Daisy Charm", price: 230000, desc: "Rangkaian bunga daisy putih.", img: "https://i.pinimg.com/736x/1e/df/fb/1edffbba617cbfe9c3576aead8e823ee.jpg" },
-  "sunflower-joy": { name: "Sunflower Joy", price: 260000, desc: "Bunga matahari ceria.", img: "https://i.pinimg.com/1200x/93/ab/8c/93ab8c4747d23016d3b6cbc1194c0a63.jpg" },
-  "orchid-dream": { name: "Orchid Dream", price: 350000, desc: "Anggrek ungu elegan.", img: "https://i.pinimg.com/1200x/14/2f/b2/142fb23313806b79364dd24c19447b8a.jpg" },
-};
 
-// ========== PRODUK DETAIL ==========
-if (window.location.pathname.includes("product-detail.html")) {
-  const params = new URLSearchParams(window.location.search);
-  const id = params.get("id");
-  const product = products[id];
+// ==========================================
+// 4. LOGIN HANDLER (CONNECT KE BACKEND)
+// ==========================================
+if (loginModal) {
+    const loginBtn = document.getElementById("mainLoginBtn") || loginModal.querySelector(".login-btn");
+    const loginInputs = loginModal.querySelectorAll("input");
 
-  if (product) {
-    document.querySelector(".product-image img").src = product.img;
-    document.querySelector(".product-info h2").textContent = product.name;
-    document.querySelector(".price").textContent = `Rp. ${product.price.toLocaleString("id-ID")}`;
-    document.querySelector(".desc").textContent = product.desc;
-  }
+    if (loginBtn) {
+        // Clone node untuk menghapus event listener lama (mencegah double submit)
+        const newLoginBtn = loginBtn.cloneNode(true);
+        loginBtn.parentNode.replaceChild(newLoginBtn, loginBtn);
 
-  const addCartBtn = document.querySelector(".add-cart");
-  if (addCartBtn) {
-    addCartBtn.addEventListener("click", (e) => {
-      e.preventDefault();
+        newLoginBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            const email = loginInputs[0].value.trim();
+            const password = loginInputs[1].value.trim();
 
-      let cart = JSON.parse(localStorage.getItem("cart")) || [];
-      const existing = cart.find(i => i.id === id);
+            if (!email || !password) {
+                alert("Mohon isi email dan password.");
+                return;
+            }
 
-      if (existing) {
-        existing.quantity++;
-      } else {
-        cart.push({
-          id,
-          name: product.name,
-          price: product.price,
-          img: product.img,
-          quantity: 1
+            try {
+                // Tembak API Login Vercel
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Simpan Token & Data User
+                    localStorage.setItem("token", data.token);
+                    localStorage.setItem("isLoggedIn", "true");
+                    
+                    const userForFrontend = {
+                        firstName: data.user.first_name,
+                        lastName: data.user.last_name || "",
+                        email: data.user.email,
+                        phone: data.user.phone || "",
+                        role: data.user.role
+                    };
+                    localStorage.setItem("userData", JSON.stringify(userForFrontend));
+                    
+                    // Simpan raw user data untuk keperluan checkout nanti
+                    localStorage.setItem("user", JSON.stringify(data.user));
+
+                    alert(`Selamat datang kembali, ${data.user.first_name}! 🌸`);
+                    
+                    if (data.user.role === 'admin') window.location.href = "admin.html";
+                    else window.location.href = "profile.html";
+
+                } else {
+                    alert("Login Gagal: " + (data.error || "Email atau password salah."));
+                }
+            } catch (error) {
+                console.error("Login Error:", error);
+                alert("Gagal terhubung ke server.");
+            }
         });
-      }
-
-      localStorage.setItem("cart", JSON.stringify(cart));
-      alert(`${product.name} berhasil ditambahkan ke keranjang! 🌸`);
-      window.location.href = "cart.html";
-    });
-  }
+    }
 }
 
-// ========== CART PAGE ==========
+
+// ==========================================
+// 5. SIGNUP HANDLER (CONNECT KE BACKEND)
+// ==========================================
+if (signupModal) {
+    const signupForm = document.getElementById("signupForm");
+    if (signupForm) {
+        const newSignupForm = signupForm.cloneNode(true);
+        signupForm.parentNode.replaceChild(newSignupForm, signupForm);
+
+        newSignupForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            
+            const firstName = document.getElementById("firstName").value.trim();
+            const lastName = document.getElementById("lastName").value.trim();
+            const phone = document.getElementById("phone").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const password = document.getElementById("password").value.trim();
+
+            try {
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        first_name: firstName, 
+                        last_name: lastName, 
+                        phone, 
+                        email, 
+                        password 
+                    })
+                });
+                
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert("Akun berhasil dibuat! Silakan Login 🌷");
+                    signupModal.style.display = "none";
+                    loginModal.style.display = "flex";
+                } else {
+                    alert("Register Gagal: " + (data.error || "Terjadi kesalahan."));
+                }
+            } catch (err) {
+                console.error(err);
+                alert("Gagal terhubung ke server.");
+            }
+        });
+    }
+}
+
+
+// ==========================================
+// 6. NAVIGASI MODAL (TABS)
+// ==========================================
+closeBtns.forEach(btn => btn.addEventListener("click", () => {
+    [loginModal, signupModal, forgotModal].forEach(m => m && (m.style.display = "none"));
+}));
+signupLinks.forEach(link => link.addEventListener("click", e => {
+    e.preventDefault();
+    if (loginModal) loginModal.style.display = "none";
+    if (signupModal) signupModal.style.display = "flex";
+}));
+loginLinks.forEach(link => link.addEventListener("click", e => {
+    e.preventDefault();
+    [signupModal, forgotModal].forEach(m => m && (m.style.display = "none"));
+    if (loginModal) loginModal.style.display = "flex";
+}));
+
+
+// ==========================================
+// 7. PRODUCT DETAIL & ADD TO CART
+// ==========================================
+function initProductDetail() {
+    if (window.location.pathname.includes("product-detail.html")) {
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get("id");
+        
+        // Ambil dari variabel global 'products' yang sudah diisi fungsi loadProducts()
+        const product = products[id];
+
+        if (product) {
+            document.querySelector(".product-image img").src = product.img;
+            document.querySelector(".product-info h2").textContent = product.name;
+            document.querySelector(".price").textContent = `Rp. ${product.price.toLocaleString("id-ID")}`;
+            document.querySelector(".desc").textContent = product.desc;
+
+            const addCartBtn = document.querySelector(".add-cart");
+            if (addCartBtn) {
+                const newBtn = addCartBtn.cloneNode(true);
+                addCartBtn.parentNode.replaceChild(newBtn, addCartBtn);
+                newBtn.addEventListener("click", (e) => {
+                    e.preventDefault();
+                    addToCartLogic(product);
+                });
+            }
+        }
+    }
+}
+
+function addToCartLogic(product) {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    // Gunakan loose equality (==) karena ID dari URL string, ID dari DB integer
+    const existing = cart.find(i => i.id == product.id); 
+    
+    if (existing) {
+        existing.quantity++;
+    } else {
+        cart.push({ 
+            id: product.id, 
+            name: product.name, 
+            price: product.price, 
+            img: product.img, 
+            quantity: 1 
+        });
+    }
+    
+    localStorage.setItem("cart", JSON.stringify(cart));
+    alert(`${product.name} berhasil ditambahkan ke keranjang! 🌸`);
+    window.location.href = "cart.html";
+}
+
+
+// ==========================================
+// 8. CART PAGE LOGIC
+// ==========================================
 if (window.location.pathname.includes("cart.html")) {
-  const cartItems = document.querySelector(".cart-items");
-  const totalEl = document.getElementById("cartTotal");
-  let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    renderCartPage();
+}
 
-  // Ambil data delivery dari product-detail
-  const orderDetails = JSON.parse(localStorage.getItem("orderDetails") || "{}");
-  orderDetails.orderNote = localStorage.getItem("orderNote") || "-";
-  const deliveryOption = orderDetails.deliveryOption || "-";
-  const deliveryTime = orderDetails.deliveryTime || "-";
+function renderCartPage() {
+    const cartItems = document.querySelector(".cart-items");
+    const totalEl = document.getElementById("cartTotal");
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
-  function renderCart() {
+    if (!cartItems) return;
+
     cartItems.innerHTML = "";
     let total = 0;
 
     if (cart.length === 0) {
-      cartItems.innerHTML = "<p>Keranjang kosong 🌸</p>";
-      totalEl.textContent = "Rp. 0";
-      return;
+        cartItems.innerHTML = "<p>Keranjang kosong 🌸</p>";
+        if (totalEl) totalEl.textContent = "Rp. 0";
+        return;
     }
 
-    cart.forEach(item => {
-      const subtotal = item.price * item.quantity;
-      total += subtotal;
+    const orderDetails = JSON.parse(localStorage.getItem("orderDetails") || "{}");
+    const deliveryText = orderDetails.deliveryOption || "Delivery"; 
 
-      const div = document.createElement("div");
-      div.className = "cart-item";
-      div.innerHTML = `
+    cart.forEach(item => {
+        const subtotal = item.price * item.quantity;
+        total += subtotal;
+
+        const div = document.createElement("div");
+        div.className = "cart-item";
+        div.innerHTML = `
         <div class="cart-left">
           <a href="product-detail.html?id=${item.id}">
             <img src="${item.img}" alt="${item.name}">
           </a>
           <div class="cart-info">
             <b>${item.name}</b>
-            <p>Delivery Option: ${deliveryOption}</p>
-            <p>Delivery Time: ${deliveryTime}</p>
+            <p>${deliveryText}</p>
           </div>
         </div>
         <div class="cart-right">
@@ -248,56 +325,67 @@ if (window.location.pathname.includes("cart.html")) {
           </div>
           <b>Rp. ${subtotal.toLocaleString("id-ID")}</b>
         </div>`;
-      cartItems.appendChild(div);
+        cartItems.appendChild(div);
     });
 
-    totalEl.textContent = `Rp. ${total.toLocaleString("id-ID")}`;
-  }
+    if (totalEl) totalEl.textContent = `Rp. ${total.toLocaleString("id-ID")}`;
+}
 
-  renderCart();
+function handleQuantityChange(e) {
+    const id = e.target.dataset.id;
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    let updatedCart = [];
+    let changed = false;
 
-  // === HANDLE +/- quantity ===
-  document.addEventListener("click", (e) => {
-    if (e.target.classList.contains("plus") || e.target.classList.contains("minus")) {
-      const id = e.target.dataset.id;
-      let updatedCart = [];
-
-      cart.forEach(item => {
-        if (item.id === id) {
-          if (e.target.classList.contains("plus")) {
-            item.quantity++;
-            updatedCart.push(item);
-          } else if (e.target.classList.contains("minus")) {
-            if (item.quantity > 1) {
-              item.quantity--;
-              updatedCart.push(item);
-            } else if (!confirm(`Hapus ${item.name} dari keranjang?`)) {
-              updatedCart.push(item);
+    cart.forEach(item => {
+        if (item.id == id) {
+            if (e.target.classList.contains("plus")) {
+                item.quantity++;
+            } else if (e.target.classList.contains("minus")) {
+                if (item.quantity > 1) {
+                    item.quantity--;
+                } else {
+                    if (!confirm(`Hapus ${item.name} dari keranjang?`)) {
+                        updatedCart.push(item);
+                        return; 
+                    }
+                    changed = true;
+                    return; 
+                }
             }
-          }
-        } else updatedCart.push(item);
-      });
+            changed = true;
+        }
+        updatedCart.push(item);
+    });
 
-      cart = updatedCart;
-      localStorage.setItem("cart", JSON.stringify(cart));
-      renderCart();
+    if (changed) {
+        localStorage.setItem("cart", JSON.stringify(updatedCart));
+        if (window.location.pathname.includes("cart.html")) {
+            renderCartPage();
+        }
     }
-  });
 }
 
-function checkoutCart() {
-  const cart = JSON.parse(localStorage.getItem("cart")) || [];
-  if (cart.length === 0) {
-    alert("Keranjang kamu masih kosong 🌸");
-    return;
-  }
+// Fungsi yang dipanggil oleh tombol Checkout di cart.html
+window.checkoutCart = function() {
+    const cart = JSON.parse(localStorage.getItem("cart")) || [];
+    if (cart.length === 0) {
+        alert("Keranjang kamu masih kosong 🌸");
+        return;
+    }
 
-  // Simpan catatan pesanan
-  const orderNote = document.querySelector(".notes textarea").value.trim();
-  localStorage.setItem("orderNote", orderNote);
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("Silakan login terlebih dahulu untuk checkout! 🌸");
+        if (loginModal) loginModal.style.display = "flex";
+        return;
+    }
 
-  // Simpan total dan data cart untuk ditampilkan di checkout
-  localStorage.setItem("checkoutCart", JSON.stringify(cart));
+    const noteInput = document.querySelector(".notes textarea");
+    if (noteInput) localStorage.setItem("orderNote", noteInput.value);
 
-  window.location.href = "checkout.html";
-}
+    // Snapshot cart untuk halaman checkout
+    localStorage.setItem("checkoutCart", JSON.stringify(cart));
+
+    window.location.href = "checkout.html";
+};
