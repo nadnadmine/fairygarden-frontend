@@ -381,13 +381,19 @@ window.checkoutCart = function() {
 };
 
 if (window.location.pathname.includes("checkout.html")) {
+    
     const itemsContainer = document.getElementById("checkoutItems");
     const subtotalEl = document.getElementById("subtotal");
+    const deliveryEl = document.getElementById("delivery"); // Elemen Biaya Delivery
     const totalEl = document.getElementById("total");
+    const deliveryTypeSelect = document.getElementById("deliveryType"); // Dropdown
+
     const cart = JSON.parse(localStorage.getItem("checkoutCart")) || [];
-    let subtotal = 0;
-    const deliveryFee = 25000;
     const handlingFee = 1000;
+    
+    let subtotal = 0;
+
+    // A. Hitung Subtotal & Render Item
     if (itemsContainer) {
         itemsContainer.innerHTML = "";
         cart.forEach(item => {
@@ -402,14 +408,48 @@ if (window.location.pathname.includes("checkout.html")) {
                 <p style="margin:0;">Rp ${rowTotal.toLocaleString("id-ID")}</p>
             </div>`;
         });
+        
+        // Tampilkan Subtotal Awal
         subtotalEl.textContent = `Rp. ${subtotal.toLocaleString("id-ID")}`;
-        totalEl.textContent = `Rp. ${(subtotal + deliveryFee + handlingFee).toLocaleString("id-ID")}`;
     }
+
+    // B. Fungsi Hitung Ulang Total (Dinamis)
+    function calculateTotal() {
+        const type = deliveryTypeSelect.value; // Ambil nilai dropdown (Delivery / Pick Up)
+        
+        // Logika Biaya
+        let deliveryFee = 0;
+        if (type === "Delivery") {
+            deliveryFee = 25000;
+        } else {
+            deliveryFee = 0; // Pick Up Gratis
+        }
+
+        // Hitung Total Akhir
+        const grandTotal = subtotal + deliveryFee + handlingFee;
+
+        // Update Tampilan HTML
+        deliveryEl.textContent = `Rp. ${deliveryFee.toLocaleString("id-ID")}`;
+        totalEl.textContent = `Rp. ${grandTotal.toLocaleString("id-ID")}`;
+    }
+
+    // C. Pasang "Mata-Mata" di Dropdown (Event Listener)
+    if (deliveryTypeSelect) {
+        // Jalankan saat dropdown berubah
+        deliveryTypeSelect.addEventListener("change", calculateTotal);
+        
+        // Jalankan sekali saat halaman baru dibuka (Set Default)
+        calculateTotal();
+    }
+
+    // D. Logic Tombol PAY NOW (Tetap Sama)
     const payBtn = document.getElementById("payNow");
     if (payBtn) {
         payBtn.addEventListener("click", async (e) => {
             e.preventDefault();
             const token = localStorage.getItem("token");
+
+            // Ambil Input HTML
             const recipientName = document.getElementById("recipientName")?.value;
             const recipientPhone = document.getElementById("recipientPhone")?.value;
             const senderPhone = document.getElementById("senderPhone")?.value;
@@ -421,36 +461,54 @@ if (window.location.pathname.includes("checkout.html")) {
             const deliveryTime = document.getElementById("deliveryTime")?.value;
             const messageCard = document.getElementById("checkoutAdditional")?.value;
 
-            if (!recipientName || !recipientPhone || !address || !deliveryDate) return alert("Mohon lengkapi Nama Penerima, Alamat, dan Tanggal Kirim!");
-            
+            // Validasi: Jika Pick Up, Alamat tidak wajib diisi tidak apa-apa (Opsional logic)
+            // Tapi biar aman, validasi standar saja dulu
+            if (!recipientName || !recipientPhone || !deliveryDate) {
+                return alert("Mohon lengkapi data penerima dan tanggal!");
+            }
+            // Khusus Delivery wajib alamat
+            if (deliveryType === "Delivery" && !address) {
+                return alert("Untuk Delivery, Alamat Wajib Diisi!");
+            }
+
             payBtn.textContent = "Processing...";
             payBtn.disabled = true;
 
             try {
                 const res = await fetch(`${API_URL}/orders/checkout`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
                     body: JSON.stringify({
                         recipient_name: recipientName,
                         recipient_phone: recipientPhone,
                         sender_phone: senderPhone || "-",
-                        address_line: address,
-                        province: province || "Jakarta",
-                        postal_code: postalCode || "00000",
+                        address_line: address || "Ambil Sendiri", // Handle jika kosong
+                        province: province || "-",
+                        postal_code: postalCode || "-",
                         delivery_type: deliveryType,
                         delivery_date: deliveryDate,
                         delivery_time: deliveryTime || "09:00 - 15:00",
                         message_card: messageCard
                     })
                 });
+
                 const data = await res.json();
                 if (res.ok) {
                     alert("✅ Pesanan Berhasil! Terima kasih.");
                     localStorage.removeItem("cart");
                     localStorage.removeItem("checkoutCart");
                     window.location.href = "profile.html";
-                } else throw new Error(data.error);
-            } catch (err) { alert("Gagal: " + err.message); payBtn.textContent = "PAY NOW"; payBtn.disabled = false; }
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (err) {
+                alert("Gagal: " + err.message);
+                payBtn.textContent = "PAY NOW";
+                payBtn.disabled = false;
+            }
         });
     }
 }
