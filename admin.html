@@ -25,58 +25,33 @@
 
     /* --- STYLE TOMBOL --- */
     
-    /* 1. Tombol Tambah Produk (Putih, Border Pink) */
+    /* 1. Tambah Produk */
     .btn-add-product {
-        background-color: #fff;
-        color: #d63384;
-        border: 2px solid #d63384;
-        padding: 8px 16px;
-        border-radius: 6px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: 0.3s;
-        display: flex;
-        align-items: center;
-        gap: 8px;
+        background-color: #fff; color: #d63384; border: 2px solid #d63384;
+        padding: 8px 16px; border-radius: 6px; font-weight: 600;
+        cursor: pointer; transition: 0.3s; display: flex; align-items: center; gap: 8px;
     }
     .btn-add-product:hover { background-color: #fff0f5; }
 
-    /* 2. Tombol Edit (Biru Muda/Abu) */
+    /* 2. Edit (Biru) */
     .btn-edit {
-        background-color: #f0f4f8;
-        color: #007bff;
-        border: 1px solid #dceefc;
-        padding: 6px 10px;
-        border-radius: 4px;
-        cursor: pointer;
-        margin-right: 5px;
+        background-color: #f0f4f8; color: #007bff; border: 1px solid #dceefc;
+        padding: 6px 10px; border-radius: 4px; cursor: pointer; margin-right: 5px;
     }
     .btn-edit:hover { background-color: #e1ecf4; }
 
-    /* 3. Tombol Hapus (Hijau Keputihan - Sage) */
+    /* 3. Hapus (Hijau Keputihan/Sage) */
     .btn-delete {
-        background-color: #e8f5e9;
-        color: #2e7d32;
-        border: 1px solid #c8e6c9;
-        padding: 6px 10px;
-        border-radius: 4px;
-        cursor: pointer;
+        background-color: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9;
+        padding: 6px 10px; border-radius: 4px; cursor: pointer;
     }
     .btn-delete:hover { background-color: #dcedc8; }
 
-    /* 4. Tombol Batal (Teks Tengah) */
+    /* 4. Batal/Outline Pink (Center Text) */
     .btn-outline-pink {
-        background: #fff;
-        color: #d63384; /* Warna Pink */
-        border: 2px solid #d63384;
-        display: flex;
-        align-items: center;
-        justify-content: center; /* FIX: TEKS DI TENGAH */
-        gap: 8px;
-        padding: 8px 15px;
-        font-weight: 600;
-        border-radius: 5px;
-        cursor: pointer;
+        background: #fff; color: #d63384; border: 2px solid #d63384;
+        display: flex; align-items: center; justify-content: center;
+        gap: 8px; padding: 8px 15px; font-weight: 600; border-radius: 5px; cursor: pointer;
     }
     .btn-outline-pink:hover { background: #d63384; color: #fff; }
 
@@ -93,7 +68,6 @@
 <body>
 
 <div class="admin-wrapper">
-
   <aside class="sidebar">
     <h2 class="logo">Fairy<br>Garden</h2>
     <nav>
@@ -110,7 +84,6 @@
   <main id="contentArea">
     <h2 style="margin-top:20px; text-align:center;">Memuat Data...</h2>
   </main>
-
 </div>
 
 <script>
@@ -119,10 +92,9 @@
   const token = localStorage.getItem("token");
   const userData = JSON.parse(localStorage.getItem("userData") || "{}");
   
-  // Variabel Global untuk Edit
   let isEditing = false;
   let editingProductId = null;
-  let allProductsCache = []; // Simpan data produk biar gak fetch ulang saat edit
+  let allProductsCache = []; 
 
   // 2. CEK ADMIN (Versi Santai)
   if (!token || userData.role !== 'admin') {
@@ -147,11 +119,9 @@
   async function renderDashboard() {
       const content = document.getElementById("contentArea");
       content.innerHTML = "<h3>Memuat Dashboard...</h3>";
-
       try {
           const resStats = await fetch(`${API_URL}/admin/stats`, { headers: { Authorization: `Bearer ${token}` } });
           const stats = await resStats.json();
-
           const resOrders = await fetch(`${API_URL}/admin/orders`, { headers: { Authorization: `Bearer ${token}` } });
           let orders = await resOrders.json();
           orders = orders.slice(0, 5); 
@@ -164,8 +134,7 @@
                     <td>${order.recipient_name}</td>
                     <td>Rp ${parseFloat(order.total_price).toLocaleString("id-ID")}</td>
                     <td><span style="padding:4px 8px; border-radius:4px; font-size:12px; background:${getStatusColor(order.status)}">${order.status}</span></td>
-                </tr>
-              `;
+                </tr>`;
           });
 
           content.innerHTML = `
@@ -176,7 +145,6 @@
                 <div class="card"><p>Produk</p><h3>${stats.totalProducts}</h3></div>
                 <div class="card"><p>Pendapatan</p><h3>Rp ${parseInt(stats.revenue).toLocaleString('id-ID')}</h3></div>
             </div>
-            
             <div class="header-flex">
                 <h3>Aktivitas Terbaru</h3>
                 <button onclick="loadPage('orders')" style="padding:8px 12px; background:#333; color:white; border:none; border-radius:4px; cursor:pointer;">Lihat Semua</button>
@@ -186,8 +154,7 @@
                     <thead><tr><th>ID</th><th>Penerima</th><th>Total</th><th>Status</th></tr></thead>
                     <tbody>${activityRows || '<tr><td colspan="4" style="text-align:center">Belum ada aktivitas.</td></tr>'}</tbody>
                 </table>
-            </div>
-          `;
+            </div>`;
       } catch (err) { content.innerHTML = `<p style="color:red">Gagal: ${err.message}</p>`; }
   }
 
@@ -200,16 +167,12 @@
       try {
           const res = await fetch(`${API_URL}/admin/orders`, { headers: { Authorization: `Bearer ${token}` } });
           const orders = await res.json();
-          
           let rows = "";
           orders.forEach(order => {
               rows += `
                 <tr>
                     <td>#${order.order_id}</td>
-                    <td>
-                        <b>${order.recipient_name}</b><br>
-                        <small>${order.delivery_date} (${order.delivery_time})</small>
-                    </td>
+                    <td><b>${order.recipient_name}</b><br><small>${order.delivery_date} (${order.delivery_time})</small></td>
                     <td>Rp ${parseFloat(order.total_price).toLocaleString("id-ID")}</td>
                     <td>
                         <select class="status-select" onchange="updateStatus(${order.order_id}, this.value)" style="background:${getStatusColor(order.status)}">
@@ -221,34 +184,24 @@
                     </td>
                 </tr>`;
           });
-
-          content.innerHTML = `
-            <h1>Kelola Pesanan</h1>
-            <div class="table-container">
-                <table>
-                    <thead><tr><th>ID</th><th>Info Pengiriman</th><th>Total</th><th>Status</th></tr></thead>
-                    <tbody>${rows}</tbody>
-                </table>
-            </div>`;
+          content.innerHTML = `<h1>Kelola Pesanan</h1><div class="table-container"><table><thead><tr><th>ID</th><th>Info Pengiriman</th><th>Total</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`;
       } catch (e) { content.innerHTML = "Gagal memuat pesanan."; }
   }
 
   // =========================================
-  // HALAMAN PRODUK (DAFTAR) - EDIT & DELETE AKTIF
+  // HALAMAN PRODUK
   // =========================================
   async function renderProducts() {
       const content = document.getElementById("contentArea");
       content.innerHTML = "<h3>Memuat Produk...</h3>";
       try {
           const res = await fetch(`${API_URL}/products`);
-          allProductsCache = await res.json(); // Simpan ke cache
+          allProductsCache = await res.json(); 
 
           let rows = "";
           allProductsCache.forEach(p => {
               let img = p.image_url;
               if (img && !img.startsWith('http')) img = `${API_URL.replace('/api','')}/uploads/${img}`;
-
-              // Escape string biar aman saat masuk fungsi JS
               const pStr = encodeURIComponent(JSON.stringify(p));
 
               rows += `
@@ -258,13 +211,8 @@
                     <td>Rp ${p.price.toLocaleString("id-ID")}</td>
                     <td>${p.stock}</td>
                     <td style="white-space: nowrap;">
-                        <button class="btn-edit" onclick="renderProductForm(true, '${pStr}')">
-                            <i class="fa-solid fa-pen"></i> Edit
-                        </button>
-                        
-                        <button class="btn-delete" onclick="deleteProduct(${p.product_id})">
-                            <i class="fa-solid fa-trash"></i> Hapus
-                        </button>
+                        <button class="btn-edit" onclick="renderProductForm(true, '${pStr}')"><i class="fa-solid fa-pen"></i> Edit</button>
+                        <button class="btn-delete" onclick="deleteProduct(${p.product_id})"><i class="fa-solid fa-trash"></i> Hapus</button>
                     </td>
                 </tr>`;
           });
@@ -272,26 +220,53 @@
           content.innerHTML = `
             <div class="header-flex">
                 <h1>Daftar Produk</h1>
-                <button class="btn-add-product" onclick="renderProductForm(false)">
-                    <i class="fa-solid fa-plus"></i> Tambah Produk
-                </button>
+                <button class="btn-add-product" onclick="renderProductForm(false)"><i class="fa-solid fa-plus"></i> Tambah Produk</button>
             </div>
-            <div class="table-container">
-                <table>
-                    <thead><tr><th>Gbr</th><th>Nama</th><th>Harga</th><th>Stok</th><th>Aksi</th></tr></thead>
-                    <tbody>${rows}</tbody>
-                </table>
-            </div>`;
+            <div class="table-container"><table><thead><tr><th>Gbr</th><th>Nama</th><th>Harga</th><th>Stok</th><th>Aksi</th></tr></thead><tbody>${rows}</tbody></table></div>`;
       } catch (e) { content.innerHTML = "Gagal memuat produk."; }
   }
 
   // =========================================
-  // FORM PRODUK (SATU FORM UNTUK TAMBAH & EDIT)
+  // HALAMAN PELANGGAN (UPDATE: ADA TOMBOL HAPUS)
+  // =========================================
+  async function renderCustomers() {
+      const content = document.getElementById("contentArea");
+      content.innerHTML = "<h3>Memuat Pelanggan...</h3>";
+      try {
+          const res = await fetch(`${API_URL}/admin/users`, { headers: { Authorization: `Bearer ${token}` } });
+          const users = await res.json();
+          let rows = "";
+          users.forEach(u => {
+              rows += `
+                <tr>
+                    <td>${u.first_name} ${u.last_name || ''}</td>
+                    <td>${u.email}</td>
+                    <td>${u.phone || '-'}</td>
+                    <td>${new Date(u.created_at).toLocaleDateString("id-ID")}</td>
+                    <td>
+                        <button class="btn-delete" onclick="deleteCustomer(${u.user_id}, '${u.first_name}')">
+                            <i class="fa-solid fa-trash"></i> Hapus
+                        </button>
+                    </td>
+                </tr>`;
+          });
+          content.innerHTML = `
+            <h1>Daftar Pelanggan</h1>
+            <div class="table-container">
+                <table>
+                    <thead><tr><th>Nama</th><th>Email</th><th>No. HP</th><th>Bergabung</th><th>Aksi</th></tr></thead>
+                    <tbody>${rows || '<tr><td colspan="5">Belum ada pelanggan.</td></tr>'}</tbody>
+                </table>
+            </div>`;
+      } catch (e) { content.innerHTML = "Gagal memuat pelanggan."; }
+  }
+
+  // =========================================
+  // FORM PRODUK
   // =========================================
   function renderProductForm(editMode, productString = null) {
       isEditing = editMode;
       let product = {};
-      
       if (editMode && productString) {
           product = JSON.parse(decodeURIComponent(productString));
           editingProductId = product.product_id;
@@ -300,58 +275,27 @@
       const content = document.getElementById("contentArea");
       content.innerHTML = `
         <div class="form-container">
-            <h2 style="color:#d63384; font-family:'Metal',serif;">
-                ${isEditing ? '<i class="fa-solid fa-pen"></i> Edit Produk' : '<i class="fa-solid fa-plus-circle"></i> Tambah Produk Baru'}
-            </h2>
-            
-            <div class="form-group">
-                <label>Nama Produk</label>
-                <input type="text" id="pName" value="${product.product_name || ''}" placeholder="Contoh: Red Rose Bouquet">
-            </div>
-            
-            <div class="form-group">
-                <label>Harga (Rp)</label>
-                <input type="number" id="pPrice" value="${product.price || ''}" placeholder="Contoh: 250000">
-            </div>
-            
-            <div class="form-group">
-                <label>Stok</label>
-                <input type="number" id="pStock" value="${product.stock || 10}">
-            </div>
-            
-            <div class="form-group">
-                <label>Kategori</label>
-                <select id="pCategory">
-                    <option value="1" ${product.category_id == 1 ? 'selected' : ''}>Birthday</option>
-                    <option value="2" ${product.category_id == 2 ? 'selected' : ''}>Mother's Day</option>
-                    <option value="3" ${product.category_id == 3 ? 'selected' : ''}>Just Because</option>
-                    <option value="4" ${product.category_id == 4 ? 'selected' : ''}>Anniversary</option>
-                    <option value="5" ${product.category_id == 5 ? 'selected' : ''}>Graduation</option>
-                </select>
-            </div>
-            
-            <div class="form-group">
-                <label>Link Gambar (URL)</label>
-                <input type="text" id="pImage" value="${product.image_url || ''}" placeholder="https://i.pinimg.com/...">
-                <small style="color:#666">Salin link gambar dari Pinterest atau Google.</small>
-            </div>
-            
-            <div class="form-group">
-                <label>Deskripsi</label>
-                <textarea id="pDesc" rows="3" placeholder="Deskripsi singkat bunga...">${product.description || ''}</textarea>
-            </div>
-            
+            <h2 style="color:#d63384; font-family:'Metal',serif;">${isEditing ? '<i class="fa-solid fa-pen"></i> Edit Produk' : '<i class="fa-solid fa-plus-circle"></i> Tambah Produk Baru'}</h2>
+            <div class="form-group"><label>Nama Produk</label><input type="text" id="pName" value="${product.product_name || ''}"></div>
+            <div class="form-group"><label>Harga (Rp)</label><input type="number" id="pPrice" value="${product.price || ''}"></div>
+            <div class="form-group"><label>Stok</label><input type="number" id="pStock" value="${product.stock || 10}"></div>
+            <div class="form-group"><label>Kategori</label><select id="pCategory">
+                <option value="1" ${product.category_id == 1 ? 'selected' : ''}>Birthday</option>
+                <option value="2" ${product.category_id == 2 ? 'selected' : ''}>Mother's Day</option>
+                <option value="3" ${product.category_id == 3 ? 'selected' : ''}>Just Because</option>
+                <option value="4" ${product.category_id == 4 ? 'selected' : ''}>Anniversary</option>
+                <option value="5" ${product.category_id == 5 ? 'selected' : ''}>Graduation</option>
+            </select></div>
+            <div class="form-group"><label>Link Gambar (URL)</label><input type="text" id="pImage" value="${product.image_url || ''}"></div>
+            <div class="form-group"><label>Deskripsi</label><textarea id="pDesc" rows="3">${product.description || ''}</textarea></div>
             <div class="form-buttons">
-                <button class="btn-save" onclick="submitProduct()">
-                    ${isEditing ? 'Update Produk' : 'Simpan Produk'}
-                </button>
+                <button class="btn-save" onclick="submitProduct()">${isEditing ? 'Update Produk' : 'Simpan Produk'}</button>
                 <button class="btn-outline-pink" style="flex:1;" onclick="renderProducts()">Batal</button>
             </div>
-        </div>
-      `;
+        </div>`;
   }
 
-  // LOGIKA SIMPAN / UPDATE
+  // ACTIONS (PRODUK)
   async function submitProduct() {
       const name = document.getElementById("pName").value;
       const price = document.getElementById("pPrice").value;
@@ -362,75 +306,43 @@
 
       if (!name || !price || !image) return alert("Nama, Harga, dan Gambar wajib diisi!");
 
-      // Tentukan URL & Method (POST untuk Baru, PUT untuk Edit)
       let url = `${API_URL}/products`;
       let method = 'POST';
-
-      if (isEditing) {
-          url = `${API_URL}/products/${editingProductId}`;
-          method = 'PUT';
-      }
+      if (isEditing) { url = `${API_URL}/products/${editingProductId}`; method = 'PUT'; }
 
       try {
           const res = await fetch(url, {
               method: method,
-              headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}`
-              },
-              body: JSON.stringify({
-                  product_name: name,
-                  price: price,
-                  stock: stock,
-                  category_id: category,
-                  image_url: image,
-                  description: desc
-              })
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+              body: JSON.stringify({ product_name: name, price, stock, category_id: category, image_url: image, description: desc })
           });
-
-          if (res.ok) {
-              alert(isEditing ? "Produk Berhasil Diupdate! 🌸" : "Produk Berhasil Ditambahkan! 🌸");
-              renderProducts(); 
-          } else {
-              const data = await res.json();
-              alert("Gagal: " + data.error);
-          }
-      } catch (err) {
-          alert("Error koneksi: " + err.message);
-      }
-  }
-
-  // LOGIKA HAPUS PRODUK
-  async function deleteProduct(id) {
-      if (!confirm("Yakin ingin menghapus produk ini selamanya?")) return;
-      try {
-          const res = await fetch(`${API_URL}/products/${id}`, {
-              method: 'DELETE',
-              headers: { 'Authorization': `Bearer ${token}` }
-          });
-          if (res.ok) { alert("Produk dihapus."); renderProducts(); } 
-          else { alert("Gagal menghapus."); }
+          if (res.ok) { alert("Berhasil! 🌸"); renderProducts(); } 
+          else { alert("Gagal Simpan."); }
       } catch (err) { alert("Error koneksi"); }
   }
 
-  // =========================================
-  // HALAMAN PELANGGAN
-  // =========================================
-  async function renderCustomers() {
-      const content = document.getElementById("contentArea");
-      content.innerHTML = "<h3>Memuat Pelanggan...</h3>";
+  async function deleteProduct(id) {
+      if (!confirm("Hapus produk ini?")) return;
       try {
-          const res = await fetch(`${API_URL}/admin/users`, { headers: { Authorization: `Bearer ${token}` } });
-          const users = await res.json();
-          let rows = "";
-          users.forEach(u => {
-              rows += `<tr><td>${u.first_name} ${u.last_name || ''}</td><td>${u.email}</td><td>${u.phone || '-'}</td><td>${new Date(u.created_at).toLocaleDateString("id-ID")}</td></tr>`;
-          });
-          content.innerHTML = `<h1>Daftar Pelanggan</h1><div class="table-container"><table><thead><tr><th>Nama</th><th>Email</th><th>No. HP</th><th>Bergabung</th></tr></thead><tbody>${rows}</tbody></table></div>`;
-      } catch (e) { content.innerHTML = "Gagal memuat pelanggan."; }
+          const res = await fetch(`${API_URL}/products/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+          if (res.ok) { alert("Dihapus."); renderProducts(); } else { alert("Gagal."); }
+      } catch (err) { alert("Error"); }
   }
 
-  // Helper
+  // ACTIONS (CUSTOMER) - BARU!
+  async function deleteCustomer(id, name) {
+      if (!confirm(`Yakin ingin menghapus user ${name}? User tidak akan bisa login lagi.`)) return;
+      try {
+          const res = await fetch(`${API_URL}/admin/users/${id}`, {
+              method: 'DELETE',
+              headers: { 'Authorization': `Bearer ${token}` }
+          });
+          if (res.ok) { alert("User berhasil dihapus."); renderCustomers(); }
+          else { const d = await res.json(); alert(d.error || "Gagal menghapus user."); }
+      } catch (err) { alert("Error koneksi"); }
+  }
+
+  // ACTIONS (ORDER STATUS)
   async function updateStatus(id, newStatus) {
       if(!confirm(`Update status #${id} ke ${newStatus}?`)) return;
       await fetch(`${API_URL}/admin/orders/${id}`, {
