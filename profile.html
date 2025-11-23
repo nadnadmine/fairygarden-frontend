@@ -132,40 +132,6 @@
       font-size: 0.9rem;
     }
 
-    /* === STATUS PESANAN === */
-    .status-tracker {
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      margin-top: 15px;
-    }
-
-    .status-step {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-size: 0.9rem;
-    }
-
-    .status-circle {
-      width: 55px;
-      height: 55px;
-      border-radius: 50%;
-      background: var(--pink);
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      margin-bottom: 6px;
-      box-shadow: 0 0 0 transparent;
-      transition: box-shadow 0.3s ease;
-    }
-
-    .status-active {
-      box-shadow: 0 0 12px 2px #70d081;
-    }
-
     /* === LOGOUT === */
     .logout-btn {
       background: var(--pink);
@@ -199,13 +165,13 @@
     <h2 id="greeting">Hi, User!</h2>
 
     <div class="profile-grid">
-      <!-- LEFT: RECENT ORDERS -->
       <div>
         <h3>Recent Orders</h3>
-        <div class="recent-orders" id="ordersList"></div>
+        <div class="recent-orders" id="ordersList">
+            <p>Memuat pesanan...</p>
+        </div>
       </div>
 
-      <!-- RIGHT: ACCOUNT DETAILS + STATUS -->
       <div class="account-info">
         <div class="account-box">
           <h4>Account Details</h4>
@@ -242,68 +208,114 @@
        <i class="fa-regular fa-envelope"></i> fairygarden@gmail.com</p>
   </footer>
 
- <!-- === Recent Orders === -->
-<script>
-  const user = JSON.parse(localStorage.getItem("userData"));
-  const isLoggedIn = localStorage.getItem("isLoggedIn");
+ <script>
+  // 1. Konfigurasi API
+  const API_URL = "https://fairygarden-backend.vercel.app/api"; 
+  const token = localStorage.getItem("token");
 
-  if (!isLoggedIn || !user) {
+  // 2. Cek Login
+  if (!token) {
     alert("Silakan login terlebih dahulu.");
     window.location.href = "index.html";
-  } else {
-    document.getElementById("greeting").textContent = `Hi, ${user.firstName} ${user.lastName}!`;
-    document.getElementById("firstName").value = user.firstName;
-    document.getElementById("lastName").value = user.lastName;
-    document.getElementById("email").value = user.email;
-    document.getElementById("phone").value = user.phone;
   }
 
-  // Ambil orders
-  let allOrders = JSON.parse(localStorage.getItem("orders")) || [];
-
-  const userOrders = allOrders.filter(o => o.userEmail === user.email);
-  const orderContainer = document.getElementById("ordersList");
-
-  orderContainer.innerHTML = "";
-
-  if (userOrders.length === 0) {
-    orderContainer.innerHTML = "<p>Belum ada pesanan 🌸</p>";
-  } else {
-    userOrders.forEach(order => {
-      const div = document.createElement("div");
-      div.classList.add("order-item");
-      div.innerHTML = `
-  <div class="order-left">
-    <img src="${order.img}" alt="${order.name}" class="order-thumb">
-    <div class="order-info">
-      <b>${order.name}</b>
-      <p>
-        Delivery Option: ${order.deliveryOption}<br>
-        Delivery Date: ${order.deliveryDate}<br>
-        Delivery Time: ${order.deliveryTime}<br>
-        Sender Name: ${order.senderName}<br>
-        Sender Phone: ${order.senderPhone}<br>
-        From: ${order.msgFrom}<br>
-        To: ${order.msgTo}<br>
-        Message: ${order.msgText}<br>
-        <b>Order Note:</b> ${order.orderNote}<br>
-        <b>Delivery Info:</b> ${order.address}, ${order.province}, ${order.postalCode} (${order.phone})<br>
-        <b>Additional Info:</b> ${order.deliveryInfo}<br>
-        <b>Status:</b> ${order.status || "Diproses"}
-      </p>
-    </div>
-  </div>
-  <div class="order-price">${order.totalPrice || order.price}</div>
-`;
-      orderContainer.appendChild(div);
-    });
+  // 3. Load Profile Data
+  async function loadProfile() {
+    try {
+        const res = await fetch(`${API_URL}/auth/me`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (res.ok) {
+            const user = await res.json();
+            document.getElementById("greeting").textContent = `Hi, ${user.first_name} ${user.last_name || ''}!`;
+            document.getElementById("firstName").value = user.first_name;
+            document.getElementById("lastName").value = user.last_name || '';
+            document.getElementById("email").value = user.email;
+            document.getElementById("phone").value = user.phone || '';
+        }
+    } catch (err) {
+        console.error("Gagal load profil:", err);
+    }
   }
 
+  // 4. Load Orders History (Sesuai Desain Kamu)
+  async function loadOrders() {
+    const container = document.getElementById("ordersList");
+    
+    try {
+        const res = await fetch(`${API_URL}/orders`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+            const orders = await res.json();
+            container.innerHTML = "";
+
+            if (orders.length === 0) {
+                container.innerHTML = "<p style='text-align:center; padding:20px;'>Belum ada pesanan 🌸</p>";
+                return;
+            }
+
+            orders.forEach(order => {
+                // Ambil item pertama sebagai 'Thumb' (perwakilan)
+                const firstItem = (order.OrderItems && order.OrderItems.length > 0) 
+                                  ? order.OrderItems[0] 
+                                  : { Product: { product_name: 'Unknown', image_url: '' } };
+                
+                // Logic Gambar
+                let imgUrl = firstItem.Product?.image_url || 'https://via.placeholder.com/70';
+                if (imgUrl && !imgUrl.startsWith('http')) {
+                    imgUrl = `${API_URL.replace('/api', '')}/uploads/${imgUrl}`;
+                }
+
+                const totalFormatted = parseFloat(order.total_price).toLocaleString("id-ID");
+                const dateFormatted = new Date(order.created_at).toLocaleDateString("id-ID");
+
+                const div = document.createElement("div");
+                div.classList.add("order-item");
+                
+                // Isi HTML sesuai struktur class kamu yang lama
+                div.innerHTML = `
+                  <div class="order-left">
+                    <img src="${imgUrl}" alt="${firstItem.product_name_snapshot}" class="order-thumb">
+                    <div class="order-info">
+                      <b>Order #${order.order_id} - ${order.status}</b>
+                      <p>
+                        Delivery Option: ${order.delivery_type}<br>
+                        Delivery Date: ${order.delivery_date}<br>
+                        Delivery Time: ${order.delivery_time}<br>
+                        To: ${order.recipient_name}<br>
+                        Phone: ${order.recipient_phone}<br>
+                        Message: ${order.message_card || '-'}<br>
+                        <b>Delivery Info:</b> ${order.address_line}, ${order.province}<br>
+                      </p>
+                    </div>
+                  </div>
+                  <div class="order-price">Rp ${totalFormatted}</div>
+                `;
+                container.appendChild(div);
+            });
+        }
+    } catch (err) {
+        container.innerHTML = "<p>Gagal memuat riwayat pesanan.</p>";
+        console.error(err);
+    }
+  }
+
+  // Jalankan Fungsi
+  loadProfile();
+  loadOrders();
+
+  // Logout Handler
   document.getElementById("logoutBtn").addEventListener("click", () => {
-    localStorage.removeItem("isLoggedIn");
-    window.location.href = "index.html";
+    if(confirm("Yakin ingin keluar?")) {
+        localStorage.clear();
+        window.location.href = "index.html";
+    }
   });
 </script>
+
 <script>
   fetch("header.html")
     .then(res => res.text())
@@ -331,3 +343,5 @@
     })
     .catch(err => console.error("Header gagal dimuat:", err));
 </script>
+</body>
+</html>
