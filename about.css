@@ -1,0 +1,100 @@
+.about-page {
+  background-color: var(--cream);
+  padding: 60px 100px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+}
+
+/* ==== WRAPPER GRID ==== */
+.about-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 60px;
+}
+
+/* ==== KIRI ==== */
+.about-left {
+  flex: 2;
+  max-width: 650px;
+  display: flex;
+  flex-direction: column;
+  gap: 40px; /* jarak antar blok (About, Areas, Specialty) */
+  align-items: flex-start;
+}
+
+.about-section h2,
+.about-section h3 {
+  font-family: 'Metal', serif;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.about-section h2 {
+  font-size: 1.6rem;
+}
+
+.about-section h3 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-top: 15px;
+}
+
+.about-section p {
+  font-size: 1.6rem;
+  line-height: 1.6;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+/* ==== KANAN ==== */
+.about-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+  padding-left: 150px;
+}
+
+.contact-box,
+.store-box {
+  background: #fff;
+  border: 1px solid #ddd;
+  padding: 20px;
+  border-radius: 6px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.contact-box h3,
+.store-box h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 6px;
+}
+
+.contact-box p,
+.store-box ul li {
+  font-size: 0.95rem;
+  margin: 6px 0;
+  line-height: 1.5;
+}
+
+.store-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* ==== RESPONSIVE ==== */
+@media (max-width: 1024px) {
+  .about-wrapper {
+    flex-direction: column;
+  }
+
+  .about-left,
+  .about-right {
+    max-width: 100%;
+  }
+}

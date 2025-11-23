@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>Search Results - Fairy Garden</title>
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Jacquarda+Bastarda+9&family=Metal&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="search.css">
+</head>
+
+<body>
+  <!-- ===== TOP BAR ===== -->
+  <div class="top-bar">
+    Place an order online for Delivery or Pick Up, or contact us at +62 812 3456 7890
+  </div>
+
+  <!-- ===== HEADER (sama kayak di HOME) ===== -->
+  <header>
+    <h1 class="logo">Fairy Garden</h1>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li class="dropdown">
+          <a href="#">Occasions</a>
+          <ul class="dropdown-menu">
+            <li><a href="occasions.html?category=birthday">Birthday</a></li>
+            <li><a href="occasions.html?category=mothersday">Mother’s Day</a></li>
+            <li><a href="occasions.html?category=justbecause">Just Because</a></li>
+            <li><a href="occasions.html?category=anniversary">Anniversary</a></li>
+            <li><a href="occasions.html?category=graduation">Graduation</a></li>
+            <li><a href="occasions.html">Explore All Occasions</a></li>
+          </ul>
+        </li>
+        <li><a href="viewall.html">About Us</a></li>
+      </ul>
+    </nav>
+
+    <div class="header-icons">
+      <a href="#" aria-label="Login"><i class="fa-regular fa-user"></i></a>
+      <a href="#" aria-label="Cart"><i class="fa-solid fa-cart-shopping"></i></a>
+    </div>
+  </header>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <section class="search-section">
+    <div class="search-bar-container">
+      <input type="text" id="searchInput" placeholder="Search...">
+      <button id="searchBtn"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+
+    <h2 id="searchTitle">XX RESULTS FOR...</h2>
+    <div id="searchGrid" class="products-grid"></div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <p><b>YOU CAN FIND US ON</b></p>
+    <p><i class="fa-brands fa-instagram"></i> @fairygarden &nbsp;&nbsp;
+       <i class="fa-regular fa-envelope"></i> fairygarden@gmail.com</p>
+  </footer>
+
+  <script src="search.js"></script>
+  <script src="header.js"></script>
+</body>
+</html>

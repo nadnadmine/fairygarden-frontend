@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440" />
+  <title>Sign Up – Fairy Garden</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Jacquarda+Bastarda+9&family=Metal&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body class="auth-wrap">
+  <div class="auth-card">
+    <h1 class="brand-small">Fairy Garden</h1>
+    <h2 class="auth-title">Sign Up</h2>
+
+    <form id="signupForm">
+  <div class="row-2">
+    <div style="flex:1">
+      <label>Nama Depan</label>
+      <input type="text" id="firstName" placeholder="Nama Depan" required>
+    </div>
+    <div style="flex:1">
+      <label>Nama Belakang</label>
+      <input type="text" id="lastName" placeholder="Nama Belakang" required>
+    </div>
+  </div>
+
+  <label>Phone Number</label>
+  <input type="tel" id="phone" placeholder="+62 xxx-xxxx-xxxx" required>
+
+  <label>Email</label>
+  <input type="email" id="email" placeholder="email@gmail.com" required>
+
+  <label>Password</label>
+  <input type="password" id="password" placeholder="Masukkan Password" required>
+
+  <button class="btn-pink full" type="submit">CREATE ACCOUNT</button>
+</form>
+
+    <p class="center" style="margin-top:12px">
+      Sudah Punya Akun? <a href="index.html" class="back-login">Log In Di Sini</a>
+    </p>
+  </div>
+
+  <script>
+document.getElementById("signupForm").addEventListener("submit", function(e) {
+  e.preventDefault();
+
+  // Ambil input
+  const firstName = document.getElementById("firstName").value.trim();
+  const lastName = document.getElementById("lastName").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+
+  // Ambil semua user sebelumnya
+  let users = JSON.parse(localStorage.getItem("users")) || [];
+
+  // Cek apakah email sudah terdaftar
+  const existingUser = users.find(u => u.email === email);
+  if (existingUser) {
+    alert("Email ini sudah terdaftar. Silakan login.");
+    window.location.href = "index.html";
+    return;
+  }
+
+  // Buat user baru
+  const newUser = { firstName, lastName, phone, email, password };
+  users.push(newUser);
+
+  // Simpan semua user kembali ke localStorage
+  localStorage.setItem("users", JSON.stringify(users));
+
+  alert("Akun berhasil dibuat! Silakan login untuk melanjutkan 🌸");
+  window.location.href = "index.html";
+});
+</script>

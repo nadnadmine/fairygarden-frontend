@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>Our Products - Fairy Garden</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Jacquarda+Bastarda+9&family=Metal&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="viewall.css">
+</head>
+
+<body>
+  <div id="header-container"></div>
+
+  <!-- ===== VIEW ALL PRODUCTS ===== -->
+  <section class="all-products">
+    <h2 class="section-title">Our Products</h2>
+    <div id="viewall-grid" class="products-grid"></div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <p><b>YOU CAN FIND US ON</b></p>
+    <p>
+      <i class="fa-brands fa-instagram"></i> @fairygarden &nbsp;&nbsp;
+      <i class="fa-regular fa-envelope"></i> fairygarden@gmail.com
+    </p>
+  </footer>
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  const grid = document.getElementById("viewall-grid");
+  if (!grid) return;
+
+  // FULL default product list (SAMAKAN dengan occasions.js)
+  const defaultProducts = [
+    { id: "rose-harmony", name: "Rose Harmony", price: 250000, category: "mothersday", img: "https://i.pinimg.com/1200x/68/a1/48/68a14894f37c6659176c61a20a57bb0d.jpg", sold: 90, stock: 15 },
+    { id: "lily-blossom", name: "Lily Blossom", price: 275000, category: "mothersday", img: "https://i.pinimg.com/736x/99/e2/ab/99e2ab5199035c32e4a4b1f564e76d0c.jpg", sold: 100, stock: 20 },
+    { id: "tulip-delight", name: "Tulip Delight", price: 300000, category: "graduation", img: "https://i.pinimg.com/736x/bd/6a/ec/bd6aec14520f3b5763ac221063db719e.jpg", sold: 60, stock: 12 },
+    { id: "peony-grace", name: "Peony Grace", price: 285000, category: "anniversary", img: "https://i.pinimg.com/736x/84/86/2b/84862b87ef673479e8487f2dd549c75e.jpg", sold: 110, stock: 18 },
+    { id: "sunflower-joy", name: "Sunflower Joy", price: 260000, category: "birthday", img: "https://i.pinimg.com/1200x/93/ab/8c/93ab8c4747d23016d3b6cbc1194c0a63.jpg", sold: 80, stock: 25 },
+    { id: "daisy-charm", name: "Daisy Charm", price: 230000, category: "birthday", img: "https://i.pinimg.com/736x/1e/df/fb/1edffbba617cbfe9c3576aead8e823ee.jpg", sold: 95, stock: 30 },
+    { id: "orchid-dream", name: "Orchid Dream", price: 350000, category: "justbecause", img: "https://i.pinimg.com/1200x/14/2f/b2/142fb23313806b79364dd24c19447b8a.jpg", sold: 30, stock: 10 },
+    { id: "carnation-bliss", name: "Carnation Bliss", price: 240000, category: "mothersday", img: "https://i.pinimg.com/1200x/9e/71/1e/9e711e33e43ad8a805459c941bd8ff01.jpg", sold: 70, stock: 22 },
+    { id: "lavender-love", name: "Lavender Love", price: 290000, category: "justbecause", img: "https://i.pinimg.com/736x/7c/ab/1c/7cab1c081e2211b0af3f765c540b3e78.jpg", sold: 50, stock: 15 },
+    { id: "blossom-mist", name: "Blossom Mist", price: 320000, category: "anniversary", img: "https://i.pinimg.com/1200x/78/a3/c6/78a3c641f7d072737f7863a717dceffb.jpg", sold: 45, stock: 10 },
+    { id: "amber-bloom", name: "Amber Bloom", price: 310000, category: "graduation", img: "https://i.pinimg.com/736x/49/9d/fb/499dfb1283be3f4302e4abcba2caa7f5.jpg", sold: 40, stock: 12 },
+    { id: "jasmine-glow", name: "Jasmine Glow", price: 270000, category: "justbecause", img: "https://i.pinimg.com/1200x/46/46/71/4646713996cc34ab86615629f1b60289.jpg", sold: 60, stock: 20 },
+    { id: "morning-dew", name: "Morning Dew", price: 260000, category: "birthday", img: "https://i.pinimg.com/736x/d5/6d/23/d56d2305d1527fa33896572a2b18427c.jpg", sold: 70, stock: 18 },
+    { id: "cherry-petal", name: "Cherry Petal", price: 255000, category: "justbecause", img: "https://i.pinimg.com/736x/e1/0b/ba/e10bbada0ece4c4c753717fe8b164f92.jpg", sold: 40, stock: 25 },
+    { id: "garden-kiss", name: "Garden Kiss", price: 330000, category: "birthday", img: "https://i.pinimg.com/736x/1f/56/0c/1f560c0c5d32f995047c2385301f2cb9.jpg", sold: 40, stock: 10 },
+    { id: "magnolia-dream", name: "Magnolia Dream", price: 340000, category: "justbecause", img: "https://i.pinimg.com/1200x/c3/03/a4/c303a4f2e6ece3bbc1261debdff048ed.jpg", sold: 50, stock: 10 },
+    { id: "sweet-pea", name: "Sweet Pea", price: 265000, category: "anniversary", img: "https://i.pinimg.com/1200x/72/db/e4/72dbe498c634f83740944007f3a342eb.jpg", sold: 50, stock: 15 },
+    { id: "spring-waltz", name: "Spring Waltz", price: 295000, category: "anniversary", img: "https://i.pinimg.com/736x/7f/ac/b2/7facb2844c9179a9cd21f651e662233f.jpg", sold: 80, stock: 12 },
+    { id: "evening-charm", name: "Evening Charm", price: 310000, category: "graduation", img: "https://i.pinimg.com/1200x/7c/e7/77/7ce777fc884d61cb2bdb9b70c7e2b407.jpg", sold: 90, stock: 10 },
+    { id: "peach-blossom", name: "Peach Blossom", price: 280000, category: "mothersday", img: "https://i.pinimg.com/1200x/3f/2e/13/3f2e131e40a21ee150c3dc15b1aeb0c3.jpg", sold: 45, stock: 15 }
+  ];
+
+  // Ambil dari storage
+  let storageProducts = JSON.parse(localStorage.getItem("products")) || [];
+
+  // Convert string price → number (hanya untuk admin-added products)
+  storageProducts = storageProducts.map(p => ({
+    ...p,
+    price: Number(p.price.toString().replace(/[^\d]/g, ""))
+  }));
+
+  // Gabungkan default + admin-products
+  const allProducts = [...defaultProducts, ...storageProducts];
+
+  // Render
+  grid.innerHTML = allProducts.map(p => `
+      <a href="product-detail.html?id=${p.id}" class="product-card">
+        <div class="product-box">
+          <img src="${p.img}" alt="${p.name}">
+        </div>
+        <b>${p.name}</b>
+        <div>Rp. ${p.price.toLocaleString("id-ID")}</div>
+      </a>
+  `).join("");
+});
+</script>
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("header-container").innerHTML = data;
+
+        // Aktifkan dropdown interaktif
+        const dropdowns = document.querySelectorAll(".dropdown");
+        dropdowns.forEach(dd => {
+          dd.addEventListener("mouseenter", () => {
+            dd.querySelector(".dropdown-menu").style.display = "block";
+          });
+          dd.addEventListener("mouseleave", () => {
+            dd.querySelector(".dropdown-menu").style.display = "none";
+          });
+        });
+      })
+      .catch(err => console.error("Gagal memuat header:", err));
+  </script>
+</body>
+</html>

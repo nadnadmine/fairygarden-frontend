@@ -1,0 +1,258 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Jacquarda+Bastarda+9&family=Metal&display=swap');
+
+:root {
+  --sage: #a0af87;
+  --pink: #f4a6b5;
+  --cream: #f8f8f0;
+  --soft: #EEDBE3;
+  --text: #333;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+section.occasion-page {
+  flex: 1;
+  display: block;
+}
+
+/* === BASE === */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--cream);
+  color: var(--text);
+}
+
+/* === TOP BAR === */
+.top-bar {
+  background: var(--pink);
+  color: #fff;
+  text-align: center;
+  font-style: italic;
+  font-size: 0.9rem;
+  padding: 8px 0;
+}
+
+/* === HEADER === */
+header {
+  background: var(--sage);
+  padding: 30px 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.logo {
+  font-family: 'Jacquarda Bastarda 9', serif;
+  font-size: 3rem;
+  color: #fff;
+  margin-bottom: 15px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+}
+nav ul li, nav ul li a {
+  font-family: 'Metal', serif;
+  font-size: 1.2rem;
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+}
+nav ul li:hover, nav ul li a:hover { text-decoration: underline; }
+nav ul li.dropdown::after {
+  content: " ▼";
+  font-size: 0.8rem;
+}
+.header-icons {
+  position: absolute;
+  right: 80px;
+  top: 30px;
+  display: flex;
+  gap: 20px;
+  font-size: 22px;
+}
+.header-icons a {
+  color: white;
+  text-decoration: none;
+  transition: 0.3s;
+}
+.header-icons a:hover { color: var(--pink); }
+
+/* === DROPDOWN MENU === */
+.dropdown {
+  position: relative;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  list-style: none;
+  padding: 10px 0;
+  min-width: 180px;
+  z-index: 10;
+}
+
+.dropdown-menu li {
+  text-align: left;
+}
+
+.dropdown-menu li a {
+  display: block;
+  padding: 8px 15px;
+  color: var(--pink);
+  font-size: 0.95rem;
+  font-family: 'Inter', sans-serif;
+  text-decoration: none;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.dropdown-menu li a:hover {
+  background: var(--soft);
+  color: var(--pink);
+}
+
+/* Show dropdown when hovering */
+.dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+/* === OCCASIONS SECTION === */
+.occasion-page {
+  padding: 70px 100px;
+  background-color: var(--cream);
+}
+
+.occasion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 60px;
+}
+
+.occasion-header h2 {
+  font-family: 'Metal', serif;
+  font-size: 1.6rem;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+}
+
+.occasion-header p {
+  font-size: 0.95rem;
+  color: var(--text);
+  opacity: 0.9;
+}
+
+.sort-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sort-box label {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.sort-box select {
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background-color: white;
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+}
+
+/* === GRID PRODUK === */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 50px 40px;
+  justify-items: center;
+}
+
+.product-card {
+  width: 180px;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.product-card img {
+  width: 180px;
+  height: 180px;
+  object-fit: cover;
+  background-color: var(--soft);
+  border-radius: 10px;
+  margin-bottom: 10px;
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover img {
+  transform: scale(1.05);
+}
+
+.product-card h3 {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 3px;
+}
+
+.product-card p.price {
+  font-size: 0.9rem;
+}
+
+/* === FOOTER === */
+footer {
+  background: var(--sage);
+  color: white;
+  text-align: center;
+  padding: 40px 0;
+  font-size: 15px;
+  margin-top: auto;
+}
+footer p {
+  margin: 6px 0;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 1024px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .occasion-page { padding: 50px 40px; }
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .product-grid { grid-template-columns: 1fr; }
+}

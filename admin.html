@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>Admin Dashboard - Fairy Garden</title>
+  <link rel="stylesheet" href="admin.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Metal&display=swap" rel="stylesheet">
+  <link rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+<div class="admin-wrapper">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h2 class="logo">Fairy<br>Garden</h2>
+
+    <nav>
+      <ul>
+        <li class="active" data-page="dashboard">Dashboard</li>
+        <li data-page="orders">Pesanan</li>
+        <li data-page="products">Produk</li>
+        <li data-page="customers">Pelanggan</li>
+      </ul>
+    </nav>
+
+    <button id="adminLogout" class="logout-btn">Logout</button>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main id="contentArea">
+    <!-- JS akan mengisi konten sesuai menu -->
+  </main>
+
+</div>
+
+<script src="admin.js"></script>
+</body>
+</html>

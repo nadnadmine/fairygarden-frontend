@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>About Us - Fairy Garden</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="about.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div id="header-container"></div>
+
+  <!-- ABOUT SECTION -->
+  <section class="about-page">
+    <div class="about-wrapper">
+      <!-- KIRI -->
+      <div class="about-left">
+        <h2>ABOUT US</h2>
+        <p>
+          Fairy Garden adalah rumah bunga yang berlokasi di Jakarta Selatan. Kami menghadirkan rangkaian bunga cantik untuk setiap momen spesial Anda.
+          Dengan kualitas dan desain terbaik, kami siap membantu Anda menyampaikan rasa cinta, syukur, dan kebahagiaan lewat bahasa bunga.
+        </p>
+
+        <h3>AREAS SERVED</h3>
+        <p>
+          Toko kami melayani area berikut: <b>Jakarta, Bogor, Depok, Tangerang,</b> dan <b>Bekasi.</b>
+        </p>
+
+        <h3>SPECIALTY SERVICE</h3>
+        <p>
+          Kami ahli dalam layanan berikut: Persediaan bunga untuk setiap kesempatan mulai dari perayaan ulang tahun, kelulusan, hari ibu, hari jadi,
+          dan bahkan ketika tidak ada perayaan apa pun.
+        </p>
+      </div>
+
+      <!-- KANAN -->
+      <div class="about-right">
+        <div class="contact-box">
+          <h3>CONTACT US</h3>
+          <p><i class="fa-solid fa-phone"></i> +62 812 3456 7890</p>
+          <p><i class="fa-regular fa-envelope"></i> fairygarden@gmail.com</p>
+          <p><i class="fa-solid fa-location-dot"></i> Jl. Pegangsaan Timur</p>
+        </div>
+
+        <div class="store-box">
+          <h3>STORE HOURS</h3>
+          <ul>
+            <li><b>Monday</b> 9:00 AM - 3:00 PM</li>
+            <li><b>Tuesday</b> 9:00 AM - 3:00 PM</li>
+            <li><b>Wednesday</b> 9:00 AM - 3:00 PM</li>
+            <li><b>Thursday</b> 9:00 AM - 3:00 PM</li>
+            <li><b>Friday</b> 9:00 AM - 5:00 PM</li>
+            <li><b>Saturday</b> 9:00 AM - 1:00 PM</li>
+            <li><b>Sunday</b> Closed</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p><b>YOU CAN FIND US ON</b></p>
+    <p>
+      <i class="fa-brands fa-instagram"></i> @fairygarden &nbsp;&nbsp;
+      <i class="fa-regular fa-envelope"></i> fairygarden@gmail.com
+    </p>
+  </footer>
+
+  <script>
+  // Muat header.html ke halaman
+  fetch("header.html")
+  .then(res => res.text())
+  .then(data => {
+    document.getElementById("header-container").innerHTML = data;
+
+    // Dropdown interaktif
+    const dropdowns = document.querySelectorAll(".dropdown");
+    dropdowns.forEach(dd => {
+      dd.addEventListener("mouseenter", () => {
+        dd.querySelector(".dropdown-menu").style.display = "block";
+      });
+      dd.addEventListener("mouseleave", () => {
+        dd.querySelector(".dropdown-menu").style.display = "none";
+      });
+    });
+  })
+  .catch(err => console.error("Gagal memuat header:", err));
+  </script>
+</body>
+</html>

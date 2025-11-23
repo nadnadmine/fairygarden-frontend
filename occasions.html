@@ -1,0 +1,96 @@
+<!DOCTYPE html> 
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440">
+  <title>Occasions - Fairy Garden</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Metal&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="occasions.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+</head>
+
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <div id="header-container"></div>
+
+  <!-- ===== MAIN SECTION ===== -->
+  <section class="occasion-page">
+    <div class="occasion-header">
+      <div>
+        <h2 id="category-title">Occasion Flowers</h2>
+        <p id="category-desc">Temukan bunga terbaik untuk momen spesial Anda 🌸</p>
+      </div>
+
+      <div class="sort-box">
+        <label for="sort">Sort By</label>
+        <select id="sort">
+          <option value="lowest">Lowest Price</option>
+          <option value="highest">Highest Price</option>
+          <option value="bestselling">Best Selling</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="product-grid" class="product-grid"></div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <p><b>YOU CAN FIND US ON</b></p>
+    <p><i class="fa-brands fa-instagram"></i> @fairygarden &nbsp;&nbsp;
+       <i class="fa-regular fa-envelope"></i> fairygarden@gmail.com</p>
+  </footer>
+
+  <script src="occasions.js"></script>
+
+  <!-- === HEADER LOGIC === -->
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("header-container").innerHTML = data;
+
+        // ===== HIGHLIGHT MENU =====
+        const current = window.location.pathname.split("/").pop();
+        document.querySelectorAll("nav ul li a").forEach(link => {
+          if (link.getAttribute("href") === current) {
+            link.style.textDecoration = "underline";
+            link.style.textDecorationColor = "#f4a6b5";
+          }
+        });
+
+        // ===== DROPDOWN =====
+        const dropdowns = document.querySelectorAll(".dropdown");
+        dropdowns.forEach(dd => {
+          dd.addEventListener("mouseenter", () => {
+            dd.querySelector(".dropdown-menu").style.display = "block";
+          });
+          dd.addEventListener("mouseleave", () => {
+            dd.querySelector(".dropdown-menu").style.display = "none";
+          });
+        });
+
+        // ===== USER ICON LOGIC (LOGIN / PROFILE) =====
+        const userIcon = document.querySelector(".header-icons i.fa-user")?.parentElement;
+
+        if (userIcon) {
+          userIcon.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            const isLoggedIn = localStorage.getItem("isLoggedIn");
+
+            if (isLoggedIn === "true") {
+              window.location.href = "profile.html";
+            } else {
+              window.location.href = "login.html";
+            }
+          });
+        }
+      })
+      .catch(err => console.error("Gagal memuat header:", err));
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>Product Detail - Fairy Garden</title>
+
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Jacquarda+Bastarda+9&family=Metal&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="product-detail.css">
+</head>
+
+<body>
+  <div id="header-container"></div>
+
+  <!-- ===== PRODUCT DETAIL ===== -->
+  <section class="product-detail">
+    <div class="product-container">
+      <div class="product-image">
+        <img src="" alt="Product Image">
+      </div>
+
+      <div class="product-info">
+        <h2>Nama Bunga</h2>
+        <p class="price">Rp. xxx.xxx</p>
+        <p class="desc">Deskripsi singkat bunga.</p>
+
+        <details class="details-box" open>
+          <summary>PICK UP/DELIVERY DETAILS</summary>
+          <form class="delivery-form">
+            <div class="input-row">
+              <label>Delivery Option:</label>
+              <div class="radio-group">
+                <label><input type="radio" name="deliveryOption" value="Delivery" checked> Delivery</label>
+                <label><input type="radio" name="deliveryOption" value="Pick Up"> Pick Up</label>
+              </div>
+            </div>
+
+            <div class="input-row">
+              <label>Delivery Date:</label>
+              <input type="date" name="deliveryDate">
+            </div>
+
+            <div class="input-row">
+              <label>Delivery Time:</label>
+              <input type="time" name="deliveryTime">
+            </div>
+
+            <div class="input-row">
+              <label>Sender Name:</label>
+              <input type="text" name="senderName">
+            </div>
+
+            <div class="input-row">
+              <label>Sender Phone:</label>
+              <input type="tel" name="senderPhone">
+            </div>
+          </form>
+        </details>
+
+        <details class="details-box">
+          <summary>MESSAGE ON CARD (TO BE PRINTED)</summary>
+          <form class="message-form">
+            <div class="input-row">
+              <label>From:</label>
+              <input type="text" name="msgFrom">
+            </div>
+            <div class="input-row">
+              <label>To:</label>
+              <input type="text" name="msgTo">
+            </div>
+            <div class="input-row">
+              <label>Message:</label>
+              <textarea name="msgText" rows="3"></textarea>
+            </div>
+          </form>
+        </details>
+
+        <button class="add-cart">ADD TO CART</button>
+        <p class="note">Please fill all the required fields.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== RELATED PRODUCTS ===== -->
+  <section class="related-products">
+    <h2 class="section-title">YOU MAY ALSO LIKE</h2>
+    <div class="related-grid" id="related-products"></div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer>
+    <p><b>YOU CAN FIND US ON</b></p>
+    <p><i class="fa-brands fa-instagram"></i> @fairygarden &nbsp;&nbsp;
+      <i class="fa-regular fa-envelope"></i> fairygarden@gmail.com</p>
+  </footer>
+
+  <!-- ===== PRODUCT DETAIL SCRIPT ===== -->
+  <script src="product-detail.js"></script>
+
+  <!-- ===== HEADER LOADER ===== -->
+  <script>
+    fetch("header.html")
+      .then(res => res.text())
+      .then(data => {
+        document.getElementById("header-container").innerHTML = data;
+      });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,254 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Metal&display=swap');
+
+:root {
+  --sage: #a0af87;
+  --pink: #f4a6b5;
+  --cream: #f8f8f0;
+  --soft: #EEDBE3;
+  --text: #333;
+}
+
+/* === BASE === */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--cream);
+  color: var(--text);
+}
+
+/* === TOP BAR === */
+.top-bar {
+  background: var(--pink);
+  color: #fff;
+  text-align: center;
+  font-style: italic;
+  font-size: 0.9rem;
+  padding: 8px 0;
+}
+
+/* === HEADER === */
+header {
+  background: var(--sage);
+  padding: 30px 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+.logo {
+  font-family: 'Jacquarda Bastarda 9', serif;
+  font-size: 3rem;
+  color: #fff;
+  margin-bottom: 15px;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 40px;
+  justify-content: center;
+}
+nav ul li, nav ul li a {
+  font-family: 'Metal', serif;
+  font-size: 1.2rem;
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+}
+nav ul li:hover, nav ul li a:hover { text-decoration: underline; }
+nav ul li.dropdown::after {
+  content: " ▼";
+  font-size: 0.8rem;
+}
+.header-icons {
+  position: absolute;
+  right: 80px;
+  top: 30px;
+  display: flex;
+  gap: 20px;
+  font-size: 22px;
+}
+.header-icons a {
+  color: white;
+  text-decoration: none;
+  transition: 0.3s;
+}
+.header-icons a:hover { color: var(--pink); }
+
+/* ===== PRODUCTS ===== */
+.all-products {
+  flex: 1;
+  text-align: center;
+  padding: 70px 100px;
+}
+
+.section-title {
+  font-family: 'Metal', serif;
+  font-size: 1.6rem;
+  margin-bottom: 50px;
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 50px 40px;
+  justify-items: center;
+}
+
+.product-card {
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 10px;
+}
+
+.product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.product-box {
+  width: 160px;
+  height: 180px;
+  background-color: var(--soft);
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.product-card b {
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin-bottom: 3px;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  background: var(--sage);
+  color: white;
+  text-align: center;
+  padding: 40px 0;
+  font-size: 15px;
+  margin-top: auto;
+}
+
+footer p {
+  margin: 6px 0;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1024px) {
+  .products-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .product-box {
+    width: 140px;
+    height: 160px;
+  }
+}
+
+@media (max-width: 480px) {
+  .products-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* === FIX GAMBAR PRODUK BIAR SQUARE DAN RAPI === */
+.product-box {
+  width: 180px;              
+  height: 180px;
+  background-color: var(--soft);
+  overflow: hidden;          
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+}
+
+/* bikin gambar di dalamnya pas square & gak ketarik */
+.product-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 10px;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+/* hover halus kayak di index */
+.product-card:hover img {
+  transform: scale(1.05);
+}
+
+/* spacing grid biar lebih simetris */
+.products-grid {
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 40px;
+  justify-items: center;
+}
+
+/* === FIX OCCASIONS DROPDOWN ARROW === */
+nav ul li.dropdown::after {
+  content: " ▼";
+  font-size: 0.8rem;
+}
+
+/* === OVERRIDE GLOBAL STYLE (fix konflik style.css) === */
+.all-products .product-box {
+  width: 180px !important;
+  height: 180px !important;
+  border-radius: 10px !important;
+  background: var(--soft) !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.all-products .product-box img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 10px !important;
+  display: block !important;
+  transition: transform 0.3s ease !important;
+}
+
+.all-products .product-card:hover img {
+  transform: scale(1.05) !important;
+}
+
+/* === FIX PINK SHADOW DAN BACKGROUND GAP === */
+.all-products .product-card {
+  background-color: var(--cream); /* samain sama warna background halaman */
+  padding-bottom: 0; /* hapus jarak bawah yang bikin pink kelihatan */
+  border-radius: 10px;
+  overflow: hidden; /* pastikan gambar gak keluar kotak */
+  box-shadow: none; /* default gak ada bayangan */
+}
+
+.all-products .product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.15); /* efek hover halus tanpa warna pink */
+}
+
+.all-products .product-box {
+  background-color: transparent !important; /* hapus background pink lembut */
+}
+
+.all-products .product-box img {
+  display: block;
+  border-radius: 10px;
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1440">
+  <title>My Account - Fairy Garden</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Metal&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    body {
+      background-color: var(--cream);
+      color: var(--text);
+      font-family: 'Inter', sans-serif;
+    }
+
+    /* === PROFILE CONTENT === */
+    .profile-container {
+      padding: 60px 120px;
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    h2 {
+      font-family: 'Metal', serif;
+      font-style: italic;
+      font-size: 1.8rem;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 40px;
+    }
+
+    /* === RECENT ORDERS === */
+    .recent-orders {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      padding: 25px;
+    }
+
+    .order-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 0;
+      border-bottom: 1px solid #eee;
+      background: transparent !important;
+    }
+
+    .order-item:last-child { border-bottom: none; }
+
+    .order-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex: 1;
+    }
+
+    .order-thumb {
+      width: 70px;
+      height: 70px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+
+    .order-info {
+      flex: 1;
+    }
+
+    .order-info b {
+      font-size: 1rem;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    .order-info p {
+      font-size: 0.9rem;
+      color: #555;
+      line-height: 1.4;
+    }
+
+    .order-price {
+      font-weight: 600;
+      color: var(--text);
+      min-width: 90px;
+      text-align: right;
+      font-size: 0.95rem;
+    }
+
+    /* === ACCOUNT BOX === */
+    .account-info {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+    }
+
+    .account-box, .status-box {
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+      padding: 20px;
+    }
+
+    .account-box h4, .status-box h4 {
+      font-weight: 600;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 8px;
+    }
+
+    .account-box .row {
+      display: flex;
+      gap: 15px;
+    }
+
+    .account-box label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 5px;
+    }
+
+    .account-box input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #f9f9f9;
+      font-size: 0.9rem;
+    }
+
+    /* === STATUS PESANAN === */
+    .status-tracker {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      margin-top: 15px;
+    }
+
+    .status-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 0.9rem;
+    }
+
+    .status-circle {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      background: var(--pink);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 6px;
+      box-shadow: 0 0 0 transparent;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .status-active {
+      box-shadow: 0 0 12px 2px #70d081;
+    }
+
+    /* === LOGOUT === */
+    .logout-btn {
+      background: var(--pink);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 35px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      align-self: center;
+      margin-top: 20px;
+      transition: 0.3s;
+    }
+
+    .logout-btn:hover { background: #e48b9d; }
+
+    footer {
+      background: var(--sage);
+      color: white;
+      text-align: center;
+      padding: 40px 0;
+      margin-top: 60px;
+    }
+  </style>
+</head>
+<body>
+  <div id="header-container"></div>
+
+  <section class="profile-container">
+    <h2 id="greeting">Hi, User!</h2>
+
+    <div class="profile-grid">
+      <!-- LEFT: RECENT ORDERS -->
+      <div>
+        <h3>Recent Orders</h3>
+        <div class="recent-orders" id="ordersList"></div>
+      </div>
+
+      <!-- RIGHT: ACCOUNT DETAILS + STATUS -->
+      <div class="account-info">
+        <div class="account-box">
+          <h4>Account Details</h4>
+          <div class="row">
+            <div style="flex:1">
+              <label>Nama Depan</label>
+              <input type="text" id="firstName" readonly>
+            </div>
+            <div style="flex:1">
+              <label>Nama Belakang</label>
+              <input type="text" id="lastName" readonly>
+            </div>
+          </div>
+          <div class="row">
+            <div style="flex:1">
+              <label>Email</label>
+              <input type="text" id="email" readonly>
+            </div>
+            <div style="flex:1">
+              <label>Nomor Telepon</label>
+              <input type="text" id="phone" readonly>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="logout-btn" id="logoutBtn">Logout</button>
+  </section>
+
+  <footer>
+    <p><b>YOU CAN FIND US ON</b></p>
+    <p><i class="fa-brands fa-instagram"></i> @fairygarden &nbsp;&nbsp;
+       <i class="fa-regular fa-envelope"></i> fairygarden@gmail.com</p>
+  </footer>
+
+ <!-- === Recent Orders === -->
+<script>
+  const user = JSON.parse(localStorage.getItem("userData"));
+  const isLoggedIn = localStorage.getItem("isLoggedIn");
+
+  if (!isLoggedIn || !user) {
+    alert("Silakan login terlebih dahulu.");
+    window.location.href = "index.html";
+  } else {
+    document.getElementById("greeting").textContent = `Hi, ${user.firstName} ${user.lastName}!`;
+    document.getElementById("firstName").value = user.firstName;
+    document.getElementById("lastName").value = user.lastName;
+    document.getElementById("email").value = user.email;
+    document.getElementById("phone").value = user.phone;
+  }
+
+  // Ambil orders
+  let allOrders = JSON.parse(localStorage.getItem("orders")) || [];
+
+  const userOrders = allOrders.filter(o => o.userEmail === user.email);
+  const orderContainer = document.getElementById("ordersList");
+
+  orderContainer.innerHTML = "";
+
+  if (userOrders.length === 0) {
+    orderContainer.innerHTML = "<p>Belum ada pesanan 🌸</p>";
+  } else {
+    userOrders.forEach(order => {
+      const div = document.createElement("div");
+      div.classList.add("order-item");
+      div.innerHTML = `
+  <div class="order-left">
+    <img src="${order.img}" alt="${order.name}" class="order-thumb">
+    <div class="order-info">
+      <b>${order.name}</b>
+      <p>
+        Delivery Option: ${order.deliveryOption}<br>
+        Delivery Date: ${order.deliveryDate}<br>
+        Delivery Time: ${order.deliveryTime}<br>
+        Sender Name: ${order.senderName}<br>
+        Sender Phone: ${order.senderPhone}<br>
+        From: ${order.msgFrom}<br>
+        To: ${order.msgTo}<br>
+        Message: ${order.msgText}<br>
+        <b>Order Note:</b> ${order.orderNote}<br>
+        <b>Delivery Info:</b> ${order.address}, ${order.province}, ${order.postalCode} (${order.phone})<br>
+        <b>Additional Info:</b> ${order.deliveryInfo}<br>
+        <b>Status:</b> ${order.status || "Diproses"}
+      </p>
+    </div>
+  </div>
+  <div class="order-price">${order.totalPrice || order.price}</div>
+`;
+      orderContainer.appendChild(div);
+    });
+  }
+
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    localStorage.removeItem("isLoggedIn");
+    window.location.href = "index.html";
+  });
+</script>
+<script>
+  fetch("header.html")
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("header-container").innerHTML = data;
+
+      // Tambahkan underline menu aktif
+      const current = window.location.pathname.split("/").pop();
+      document.querySelectorAll("nav ul li a").forEach(link => {
+        if (link.getAttribute("href") === current) {
+          link.style.textDecoration = "underline";
+          link.style.textDecorationColor = "#f4a6b5";
+        }
+      });
+
+      // Dropdown interaktif
+      document.querySelectorAll(".dropdown").forEach(dd => {
+        dd.addEventListener("mouseenter", () => {
+          dd.querySelector(".dropdown-menu").style.display = "block";
+        });
+        dd.addEventListener("mouseleave", () => {
+          dd.querySelector(".dropdown-menu").style.display = "none";
+        });
+      });
+    })
+    .catch(err => console.error("Header gagal dimuat:", err));
+</script>

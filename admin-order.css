@@ -1,0 +1,55 @@
+/* ============ DETAIL PAGE ============ */
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: #fff8ef;
+  margin: 0;
+  padding: 0;
+}
+
+.detail-wrapper {
+  width: 900px;
+  margin: 40px auto;
+}
+
+.back-btn {
+  background: #dce9d1;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+h2 {
+  font-size: 28px;
+  margin-bottom: 25px;
+}
+
+.box {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.box h3 {
+  margin-top: 0;
+}
+
+.prod-img {
+  width: 160px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.done-btn {
+  background: #73855c;
+  color: white;
+  padding: 12px 25px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+}

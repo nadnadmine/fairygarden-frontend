@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=1440">
+  <title>Detail Pesanan Admin</title>
+  <link rel="stylesheet" href="admin-order.css">
+</head>
+
+<body>
+
+  <div class="detail-wrapper">
+
+    <button class="back-btn" onclick="window.location.href='admin.html'">← Back</button>
+
+    <h2>Detail Pesanan</h2>
+
+    <div class="box">
+      <h3>Informasi Pengiriman</h3>
+      <p><b>Nama Pelanggan:</b> <span id="custName">-</span></p>
+      <p><b>Email:</b> <span id="custEmail">-</span></p>
+      <p><b>Alamat:</b> <span id="custAddress">-</span></p>
+      <p><b>Provinsi:</b> <span id="custProvince">-</span></p>
+      <p><b>Kode Pos:</b> <span id="custPostal">-</span></p>
+      <p><b>No. Telepon:</b> <span id="custPhone">-</span></p>
+    </div>
+
+    <div class="box">
+      <h3>Detail Pengiriman & Pesan</h3>
+      <p><b>Delivery Option:</b> <span id="opt">-</span></p>
+      <p><b>Delivery Date:</b> <span id="date">-</span></p>
+      <p><b>Delivery Time:</b> <span id="time">-</span></p>
+
+      <p><b>Sender Name:</b> <span id="senderName">-</span></p>
+      <p><b>Sender Phone:</b> <span id="senderPhone">-</span></p>
+
+      <p><b>Message From:</b> <span id="msgFrom">-</span></p>
+      <p><b>Message To:</b> <span id="msgTo">-</span></p>
+      <p><b>Card Message:</b><br><span id="msgText">-</span></p>
+
+      <p><b>Order Note:</b> <span id="orderNote">-</span></p>
+      <p><b>Additional Info:</b> <span id="deliveryInfo">-</span></p>
+    </div>
+
+    <div class="box">
+      <h3>Produk</h3>
+      <img id="prodImg" src="" class="prod-img">
+      <p><b>Nama Produk:</b> <span id="prodName">-</span></p>
+      <p><b>Jumlah:</b> <span id="prodQty">-</span></p>
+      <p><b>Total Harga:</b> <span id="prodTotal">-</span></p>
+    </div>
+
+    <button class="done-btn" onclick="window.location.href='admin.html'">Selesai</button>
+
+  </div>
+
+  <script>
+    const id = localStorage.getItem("adminViewOrderID");
+    const all = JSON.parse(localStorage.getItem("orders")) || [];
+    const order = all.find(o => o.orderID == id);
+
+    if (!order) {
+      alert("Data pesanan tidak ditemukan.");
+      window.location.href = "admin.html";
+    }
+
+    document.getElementById("custEmail").textContent = order.userEmail;
+    document.getElementById("custPhone").textContent = order.phone;
+    document.getElementById("custProvince").textContent = order.province;
+    document.getElementById("custPostal").textContent = order.postalCode;
+    document.getElementById("custAddress").textContent = order.address;
+
+    document.getElementById("opt").textContent = order.deliveryOption;
+    document.getElementById("date").textContent = order.deliveryDate;
+    document.getElementById("time").textContent = order.deliveryTime;
+
+    document.getElementById("senderName").textContent = order.senderName;
+    document.getElementById("senderPhone").textContent = order.senderPhone;
+
+    document.getElementById("msgFrom").textContent = order.msgFrom;
+    document.getElementById("msgTo").textContent = order.msgTo;
+    document.getElementById("msgText").textContent = order.msgText;
+
+    document.getElementById("orderNote").textContent = order.orderNote;
+    document.getElementById("deliveryInfo").textContent = order.deliveryInfo;
+
+    document.getElementById("prodName").textContent = order.name;
+    document.getElementById("prodQty").textContent = order.quantity;
+    document.getElementById("prodTotal").textContent = order.totalPrice;
+    document.getElementById("prodImg").src = order.img;
+
+  </script>
+
+</body>
+</html>
