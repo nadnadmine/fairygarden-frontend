@@ -5,22 +5,27 @@
   <meta name="viewport" content="width=1440">
   <title>Checkout - Fairy Garden</title>
 
-  <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Metal&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-  <!-- CSS Global + Checkout -->
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="checkout.css">
 </head>
 
 <body>
-  <!-- ===== TOP BAR ===== -->
+  <div id="auth-container"></div>
+  <script>
+    fetch("modal-auth.html").then(res=>res.text()).then(html=>{
+      const c=document.getElementById("auth-container");c.innerHTML=html;
+      c.querySelectorAll("script").forEach(s=>{
+        const n=document.createElement("script");n.textContent=s.textContent;document.body.appendChild(n);
+      });
+    });
+  </script>
+
   <div class="top-bar">
     Place an order online for Delivery or Pick Up, or contact us at +62 812 3456 7890
   </div>
 
-  <!-- ===== HEADER ===== -->
   <header>
     <h1 class="logo">Fairy Garden</h1>
     <nav>
@@ -40,49 +45,61 @@
         <li><a href="about.html">About Us</a></li>
       </ul>
     </nav>
-
     <div class="header-icons">
-      <a href="#" aria-label="Login"><i class="fa-regular fa-user"></i></a>
-      <a href="cart.html" aria-label="Cart"><i class="fa-solid fa-cart-shopping"></i></a>
+      <a href="#" id="userButton"><i class="fa-regular fa-user"></i></a>
+      <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i></a>
     </div>
   </header>
 
-  <!-- ===== CHECKOUT SECTION ===== -->
   <div class="checkout-container">
-    <!-- LEFT SIDE -->
+    
     <div class="checkout-left">
-      <h3>Delivery</h3>
-      <input type="text" placeholder="Alamat Pengiriman" id="address">
+      
+      <h3>Data Penerima</h3>
+      <input type="text" placeholder="Nama Penerima" id="recipientName">
+      <input type="text" placeholder="Nomor Telepon Penerima (WA)" id="recipientPhone">
+
+      <h3>Data Pengirim</h3>
+      <input type="text" placeholder="Nomor Telepon Pengirim (Opsional)" id="senderPhone">
+
+      <h3>Alamat Pengiriman</h3>
+      <input type="text" placeholder="Alamat Lengkap (Jalan, No. Rumah)" id="address">
       <div class="row">
         <input type="text" placeholder="Provinsi" id="province">
-        <input type="text" placeholder="Kode Pos" id="postal">
+        <input type="text" placeholder="Kode Pos" id="postalCode">
       </div>
-      <input type="text" placeholder="Nomor Telepon Penerima/Nomor WhatsApp" id="phone">
 
-      <h3>Delivery Information</h3>
-<textarea id="checkoutAdditional" placeholder="Tambahkan catatan (opsional)"></textarea>
+      <h3>Jadwal & Tipe Pengiriman</h3>
+      <div class="row">
+          <select id="deliveryType" style="flex:1; padding:10px; border:1px solid #ccc; margin-right:5px;">
+              <option value="Delivery">Delivery (+Rp 25.000)</option>
+              <option value="Pick Up">Pick Up (Ambil Sendiri)</option>
+          </select>
+          <input type="date" id="deliveryDate" style="flex:1;">
+      </div>
+      <div class="row" style="margin-top: 10px;">
+          <select id="deliveryTime" style="width:100%; padding:10px; border:1px solid #ccc;">
+              <option value="">-- Pilih Jam Pengiriman --</option>
+              <option value="09:00 - 12:00">Pagi (09:00 - 12:00)</option>
+              <option value="12:00 - 15:00">Siang (12:00 - 15:00)</option>
+              <option value="15:00 - 18:00">Sore (15:00 - 18:00)</option>
+          </select>
+      </div>
+
+      <h3>Message Card</h3>
+      <textarea id="checkoutAdditional" placeholder="Tulis ucapan untuk kartu di sini..."></textarea>
 
       <h3>Payment</h3>
-      <p class="muted">Semua transaksi aman dan terenkripsi.</p>
-
-      <div class="payment-box">
-        <label for="qris">
-          <span>QRIS</span>
-          <input type="radio" name="payment" id="qris">
-        </label>
-      </div>
-
-      <!-- QRIS Detail (hidden by default) -->
-      <div class="qris-detail" id="qrisDetail">
-        <p>Silakan scan kode QR berikut untuk menyelesaikan pembayaran:</p>
-        <img src="https://i.pinimg.com/1200x/75/d7/06/75d706845313003903984e0a6c0aa7b2.jpg" alt="QRIS Code" class="qris-img">
-        <button class="btn-hide" id="hideQris">Tutup QR</button>
+      <p class="muted">Scan QRIS di bawah ini untuk membayar.</p>
+      
+      <div class="qris-detail" style="display:block; text-align:center; margin-bottom:20px;">
+        <img src="https://i.pinimg.com/1200x/75/d7/06/75d706845313003903984e0a6c0aa7b2.jpg" alt="QRIS Code" class="qris-img" style="max-width:200px; border-radius:8px;">
+        <p style="font-size:12px; margin-top:5px;">Otomatis terverifikasi setelah klik tombol di bawah.</p>
       </div>
 
       <button class="btn-pay" id="payNow">PAY NOW</button>
     </div>
 
-    <!-- RIGHT SIDE -->
     <div class="checkout-right">
       <div id="checkoutItems"></div>
 
@@ -97,7 +114,7 @@
         </div>
         <div class="summary-row">
           <span>Handling & Service</span>
-          <span id="service">Rp. 10.000</span>
+          <span id="service">Rp. 1.000</span>
         </div>
         <div class="summary-row total">
           <span>TOTAL</span>
@@ -107,13 +124,12 @@
     </div>
   </div>
 
-  <!-- ===== FOOTER ===== -->
   <footer>
     <p><b>YOU CAN FIND US ON</b></p>
     <p><i class="fa-brands fa-instagram"></i> @fairygarden &nbsp;&nbsp;
        <i class="fa-regular fa-envelope"></i> fairygarden@gmail.com</p>
   </footer>
 
-  <script src="checkout.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
