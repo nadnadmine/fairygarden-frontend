@@ -23,9 +23,9 @@
     .thumb-small { width: 50px; height: 50px; border-radius: 4px; object-fit: cover; border: 1px solid #eee; }
     .header-flex { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 
-    /* --- STYLE TOMBOL KHUSUS (SESUAI REQUEST) --- */
+    /* --- STYLE TOMBOL --- */
     
-    /* 1. Tombol Tambah Produk (Background Putih, Border Pink) */
+    /* 1. Tombol Tambah Produk (Putih, Border Pink) */
     .btn-add-product {
         background-color: #fff;
         color: #d63384;
@@ -39,11 +39,9 @@
         align-items: center;
         gap: 8px;
     }
-    .btn-add-product:hover {
-        background-color: #fff0f5; /* Pink sangat muda saat hover */
-    }
+    .btn-add-product:hover { background-color: #fff0f5; }
 
-    /* 2. Tombol Edit (Biru/Abu Lembut) */
+    /* 2. Tombol Edit (Biru Muda/Abu) */
     .btn-edit {
         background-color: #f0f4f8;
         color: #007bff;
@@ -57,8 +55,8 @@
 
     /* 3. Tombol Hapus (Hijau Keputihan - Sage) */
     .btn-delete {
-        background-color: #e8f5e9; /* Hijau keputihan lembut */
-        color: #2e7d32; /* Teks hijau tua agar terbaca */
+        background-color: #e8f5e9;
+        color: #2e7d32;
         border: 1px solid #c8e6c9;
         padding: 6px 10px;
         border-radius: 4px;
@@ -66,14 +64,29 @@
     }
     .btn-delete:hover { background-color: #dcedc8; }
 
+    /* 4. Tombol Batal (Teks Tengah) */
+    .btn-outline-pink {
+        background: #fff;
+        color: #d63384; /* Warna Pink */
+        border: 2px solid #d63384;
+        display: flex;
+        align-items: center;
+        justify-content: center; /* FIX: TEKS DI TENGAH */
+        gap: 8px;
+        padding: 8px 15px;
+        font-weight: 600;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .btn-outline-pink:hover { background: #d63384; color: #fff; }
+
     /* Form Styles */
     .form-container { background: #fff; padding: 30px; border-radius: 8px; max-width: 600px; margin: 0 auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
     .form-group { margin-bottom: 15px; }
     .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
     .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: inherit; }
     .form-buttons { display: flex; gap: 10px; margin-top: 20px; }
-    .btn-save { background: #d63384; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; flex: 1; }
-    .btn-cancel { background: #eee; color: #333; border: none; padding: 10px; border-radius: 5px; cursor: pointer; flex: 1; }
+    .btn-save { background: #d63384; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; flex: 1; font-weight: bold; }
   </style>
 </head>
 
@@ -105,6 +118,11 @@
   const API_URL = "https://fairygarden-backend.vercel.app/api";
   const token = localStorage.getItem("token");
   const userData = JSON.parse(localStorage.getItem("userData") || "{}");
+  
+  // Variabel Global untuk Edit
+  let isEditing = false;
+  let editingProductId = null;
+  let allProductsCache = []; // Simpan data produk biar gak fetch ulang saat edit
 
   // 2. CEK ADMIN (Versi Santai)
   if (!token || userData.role !== 'admin') {
@@ -216,19 +234,22 @@
   }
 
   // =========================================
-  // HALAMAN PRODUK (DAFTAR) - SESUAI DESAIN PDF
+  // HALAMAN PRODUK (DAFTAR) - EDIT & DELETE AKTIF
   // =========================================
   async function renderProducts() {
       const content = document.getElementById("contentArea");
       content.innerHTML = "<h3>Memuat Produk...</h3>";
       try {
           const res = await fetch(`${API_URL}/products`);
-          const products = await res.json();
+          allProductsCache = await res.json(); // Simpan ke cache
 
           let rows = "";
-          products.forEach(p => {
+          allProductsCache.forEach(p => {
               let img = p.image_url;
               if (img && !img.startsWith('http')) img = `${API_URL.replace('/api','')}/uploads/${img}`;
+
+              // Escape string biar aman saat masuk fungsi JS
+              const pStr = encodeURIComponent(JSON.stringify(p));
 
               rows += `
                 <tr>
@@ -237,7 +258,7 @@
                     <td>Rp ${p.price.toLocaleString("id-ID")}</td>
                     <td>${p.stock}</td>
                     <td style="white-space: nowrap;">
-                        <button class="btn-edit" onclick="alert('Fitur Edit (Update) akan segera hadir!')">
+                        <button class="btn-edit" onclick="renderProductForm(true, '${pStr}')">
                             <i class="fa-solid fa-pen"></i> Edit
                         </button>
                         
@@ -251,7 +272,7 @@
           content.innerHTML = `
             <div class="header-flex">
                 <h1>Daftar Produk</h1>
-                <button class="btn-add-product" onclick="renderAddProductForm()">
+                <button class="btn-add-product" onclick="renderProductForm(false)">
                     <i class="fa-solid fa-plus"></i> Tambah Produk
                 </button>
             </div>
@@ -265,66 +286,94 @@
   }
 
   // =========================================
-  // FORM TAMBAH PRODUK
+  // FORM PRODUK (SATU FORM UNTUK TAMBAH & EDIT)
   // =========================================
-  function renderAddProductForm() {
+  function renderProductForm(editMode, productString = null) {
+      isEditing = editMode;
+      let product = {};
+      
+      if (editMode && productString) {
+          product = JSON.parse(decodeURIComponent(productString));
+          editingProductId = product.product_id;
+      }
+
       const content = document.getElementById("contentArea");
       content.innerHTML = `
         <div class="form-container">
-            <h2 style="color:#d63384; font-family:'Metal',serif;">Tambah Produk Baru</h2>
+            <h2 style="color:#d63384; font-family:'Metal',serif;">
+                ${isEditing ? '<i class="fa-solid fa-pen"></i> Edit Produk' : '<i class="fa-solid fa-plus-circle"></i> Tambah Produk Baru'}
+            </h2>
+            
             <div class="form-group">
                 <label>Nama Produk</label>
-                <input type="text" id="addName" placeholder="Contoh: Red Rose Bouquet">
+                <input type="text" id="pName" value="${product.product_name || ''}" placeholder="Contoh: Red Rose Bouquet">
             </div>
+            
             <div class="form-group">
                 <label>Harga (Rp)</label>
-                <input type="number" id="addPrice" placeholder="Contoh: 250000">
+                <input type="number" id="pPrice" value="${product.price || ''}" placeholder="Contoh: 250000">
             </div>
+            
             <div class="form-group">
                 <label>Stok</label>
-                <input type="number" id="addStock" value="10">
+                <input type="number" id="pStock" value="${product.stock || 10}">
             </div>
+            
             <div class="form-group">
                 <label>Kategori</label>
-                <select id="addCategory">
-                    <option value="1">Birthday</option>
-                    <option value="2">Mother's Day</option>
-                    <option value="3">Just Because</option>
-                    <option value="4">Anniversary</option>
-                    <option value="5">Graduation</option>
+                <select id="pCategory">
+                    <option value="1" ${product.category_id == 1 ? 'selected' : ''}>Birthday</option>
+                    <option value="2" ${product.category_id == 2 ? 'selected' : ''}>Mother's Day</option>
+                    <option value="3" ${product.category_id == 3 ? 'selected' : ''}>Just Because</option>
+                    <option value="4" ${product.category_id == 4 ? 'selected' : ''}>Anniversary</option>
+                    <option value="5" ${product.category_id == 5 ? 'selected' : ''}>Graduation</option>
                 </select>
             </div>
+            
             <div class="form-group">
                 <label>Link Gambar (URL)</label>
-                <input type="text" id="addImage" placeholder="https://i.pinimg.com/...">
-                <small style="color:#666">Salin link gambar dari Pinterest atau Google Images.</small>
+                <input type="text" id="pImage" value="${product.image_url || ''}" placeholder="https://i.pinimg.com/...">
+                <small style="color:#666">Salin link gambar dari Pinterest atau Google.</small>
             </div>
+            
             <div class="form-group">
                 <label>Deskripsi</label>
-                <textarea id="addDesc" rows="3" placeholder="Deskripsi singkat bunga..."></textarea>
+                <textarea id="pDesc" rows="3" placeholder="Deskripsi singkat bunga...">${product.description || ''}</textarea>
             </div>
+            
             <div class="form-buttons">
-                <button class="btn-save" onclick="submitNewProduct()">Simpan Produk</button>
-                <button class="btn-cancel" onclick="renderProducts()">Batal</button>
+                <button class="btn-save" onclick="submitProduct()">
+                    ${isEditing ? 'Update Produk' : 'Simpan Produk'}
+                </button>
+                <button class="btn-outline-pink" style="flex:1;" onclick="renderProducts()">Batal</button>
             </div>
         </div>
       `;
   }
 
-  // LOGIKA SIMPAN PRODUK
-  async function submitNewProduct() {
-      const name = document.getElementById("addName").value;
-      const price = document.getElementById("addPrice").value;
-      const stock = document.getElementById("addStock").value;
-      const category = document.getElementById("addCategory").value;
-      const image = document.getElementById("addImage").value;
-      const desc = document.getElementById("addDesc").value;
+  // LOGIKA SIMPAN / UPDATE
+  async function submitProduct() {
+      const name = document.getElementById("pName").value;
+      const price = document.getElementById("pPrice").value;
+      const stock = document.getElementById("pStock").value;
+      const category = document.getElementById("pCategory").value;
+      const image = document.getElementById("pImage").value;
+      const desc = document.getElementById("pDesc").value;
 
       if (!name || !price || !image) return alert("Nama, Harga, dan Gambar wajib diisi!");
 
+      // Tentukan URL & Method (POST untuk Baru, PUT untuk Edit)
+      let url = `${API_URL}/products`;
+      let method = 'POST';
+
+      if (isEditing) {
+          url = `${API_URL}/products/${editingProductId}`;
+          method = 'PUT';
+      }
+
       try {
-          const res = await fetch(`${API_URL}/products`, {
-              method: 'POST',
+          const res = await fetch(url, {
+              method: method,
               headers: {
                   'Content-Type': 'application/json',
                   'Authorization': `Bearer ${token}`
@@ -340,7 +389,7 @@
           });
 
           if (res.ok) {
-              alert("Produk Berhasil Ditambahkan! 🌸");
+              alert(isEditing ? "Produk Berhasil Diupdate! 🌸" : "Produk Berhasil Ditambahkan! 🌸");
               renderProducts(); 
           } else {
               const data = await res.json();
