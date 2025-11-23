@@ -56,11 +56,10 @@
   const token = localStorage.getItem("token");
   const userData = JSON.parse(localStorage.getItem("userData") || "{}");
 
-  // 2. CEK ADMIN
+  /// 2. CEK ADMIN (Versi Santai)
   if (!token || userData.role !== 'admin') {
-      alert("Akses Ditolak! Anda bukan Admin.");
-      localStorage.clear();
-      window.location.href = "index.html";
+      console.warn("Peringatan: Browser mendeteksi anda bukan admin, tapi kita coba akses server dulu...");
+      // Jangan di-kick, biarkan backend yang menolak jika memang salah
   }
 
   // 3. NAVIGASI HALAMAN
