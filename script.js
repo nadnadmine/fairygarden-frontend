@@ -251,14 +251,59 @@ function initProductDetail() {
         }
     }
 }
-function addToCartLogic(product) {
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    const existing = cart.find(i => i.id == product.id); 
-    if (existing) existing.quantity++;
-    else cart.push({ id: product.id, name: product.name, price: product.price, img: product.img, quantity: 1 });
-    localStorage.setItem("cart", JSON.stringify(cart));
-    alert("Masuk keranjang! 🌸");
-    window.location.href = "cart.html";
+async function addToCartLogic(product) {
+    // 1. Cek Login Dulu
+    const token = localStorage.getItem("token");
+    if (!token) {
+        alert("Silakan login dulu untuk belanja! 🌸");
+        if(loginModal) loginModal.style.display = "flex";
+        return;
+    }
+
+    try {
+        // 2. Kirim ke Back-End (Database)
+        const response = await fetch(`${API_URL}/carts/items`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                product_id: product.id,
+                quantity: 1
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // 3. Jika Sukses di Server, Baru Simpan di LocalStorage (Buat Tampilan)
+            let cart = JSON.parse(localStorage.getItem("cart")) || [];
+            const existing = cart.find(i => i.id == product.id); 
+            
+            if (existing) {
+                existing.quantity++;
+            } else {
+                cart.push({ 
+                    id: product.id, 
+                    name: product.name, 
+                    price: product.price, 
+                    img: product.img, 
+                    quantity: 1 
+                });
+            }
+            
+            localStorage.setItem("cart", JSON.stringify(cart));
+            alert("Berhasil masuk keranjang! (Tersimpan di Database) 🌸");
+            window.location.href = "cart.html";
+        } else {
+            throw new Error(data.error || "Gagal menambah ke keranjang");
+        }
+
+    } catch (err) {
+        console.error(err);
+        alert("Gagal: " + err.message);
+    }
 }
 if (window.location.pathname.includes("cart.html")) renderCartPage();
 function renderCartPage() {
