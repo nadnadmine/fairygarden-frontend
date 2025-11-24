@@ -67,22 +67,35 @@ async function loadProducts() {
 } 
 
 // =========================================================
-// 3. GLOBAL LISTENERS
+// 3. GLOBAL LISTENERS (VERSI FINAL & PEKA)
 // =========================================================
 document.addEventListener("click", (e) => {
-    // Tombol User Icon
-    if (e.target.matches(".fa-user") || e.target.closest("#userButton")) {
-        e.preventDefault();
+    // Cari elemen link <a> terdekat yang diklik
+    const clickedLink = e.target.closest("a");
+    
+    // Cek apakah yang diklik adalah tombol User?
+    // (Bisa berupa icon .fa-user, ATAU link yang membungkus icon tersebut)
+    const isUserButton = e.target.matches(".fa-user") || 
+                         (clickedLink && clickedLink.querySelector(".fa-user")) || 
+                         (clickedLink && clickedLink.id === "userButton");
+
+    if (isUserButton) {
+        e.preventDefault(); // Cegah link pindah halaman (jika href="#")
+        
         const token = localStorage.getItem("token");
         const userData = JSON.parse(localStorage.getItem("userData") || "{}");
         
         if (token) {
-            if(userData.role === 'admin') window.location.href = "admin.html";
+            // Jika sudah login, arahkan sesuai role
+            if (userData.role === 'admin') window.location.href = "admin.html";
             else window.location.href = "profile.html";
-        } else if (loginModal) {
-            loginModal.style.display = "flex";
+        } else {
+            // Jika belum login, buka modal
+            if (loginModal) loginModal.style.display = "flex";
         }
     }
+
+    // Tutup Modal jika klik di luar (Overlay)
     if (e.target === loginModal) loginModal.style.display = "none";
     if (e.target === signupModal) signupModal.style.display = "none";
 });
