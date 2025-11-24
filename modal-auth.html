@@ -1,113 +1,202 @@
+<!-- ===================================================== -->
+<!-- =============== LOGIN, SIGNUP, FORGOT =============== -->
+<!-- ===================================================== -->
+
+<!-- LOGIN -->
 <div id="loginModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn">&times;</span>
-        <h2>Log In</h2>
-        <p>Masuk untuk melanjutkan checkout.</p>
-        
-        <div class="input-group">
-            <input type="email" placeholder="Email" required>
-        </div>
-        <div class="input-group">
-            <input type="password" placeholder="Password" required>
-        </div>
-        
-        <button id="mainLoginBtn" class="login-btn">LOG IN</button>
-        
-        <p class="switch-modal">Belum punya akun? <a href="#" class="signup-link">Sign Up</a></p>
+  <div class="modal-content">
+    <span class="close-btn close-login">&times;</span>
+    <h2 class="login-title">Log In</h2>
+
+    <label>Email</label>
+    <input type="email" id="loginEmail" placeholder="email@gmail.com">
+
+    <label>Password</label>
+    <input type="password" id="loginPassword" placeholder="Masukkan Password">
+
+    <button class="login-btn" id="loginBtn">LOG IN</button>
+
+    <div class="login-footer">
+      <a href="#" class="forgot">Lupa Sandi?</a>
+      <p>Belum Memiliki Akun? <a href="#" class="signup-link">Sign Up Di Sini</a></p>
     </div>
+  </div>
 </div>
 
+<!-- FORGOT -->
+<div id="forgotModal" class="modal">
+  <div class="modal-content">
+    <span class="close-btn close-forgot">&times;</span>
+    <h2 class="login-title">Ubah Sandi</h2>
+
+    <p class="forgot-desc">Kami akan mengirim email untuk ubah sandi.</p>
+
+    <label>Email</label>
+    <input type="email" id="forgotEmail" placeholder="email@gmail.com">
+
+    <button class="login-btn">KIRIM</button>
+    <button class="cancel-btn">BATAL</button>
+
+    <div class="login-footer">
+      <p>Belum Memiliki Akun?
+         <a href="#" class="signup-link">Sign Up Di Sini</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- SIGN UP -->
 <div id="signupModal" class="modal">
-    <div class="modal-content">
-        <span class="close-btn">&times;</span>
-        <h2>Sign Up</h2>
-        <p>Buat akun baru dalam hitungan detik.</p>
-        
-        <form id="signupForm">
-            <div class="input-group">
-                <input type="text" id="firstName" placeholder="Nama Depan" required>
-            </div>
-            <div class="input-group">
-                <input type="text" id="lastName" placeholder="Nama Belakang">
-            </div>
-            <div class="input-group">
-                <input type="text" id="phone" placeholder="Nomor Telepon" required>
-            </div>
-            <div class="input-group">
-                <input type="email" id="email" placeholder="Email" required>
-            </div>
-            <div class="input-group">
-                <input type="password" id="password" placeholder="Password" required>
-            </div>
-            
-            <button type="submit" class="login-btn">SIGN UP</button>
-        </form>
-        
-        <p class="switch-modal">Sudah punya akun? <a href="#" class="login-link">Log In</a></p>
+  <div class="modal-content">
+    <span class="close-btn close-signup">&times;</span>
+    <h2 class="login-title">Sign Up</h2>
+
+    <form class="signup-form" id="signupForm">
+      <div class="name-row">
+        <div class="input-group">
+          <label>Nama Depan</label>
+          <input type="text" id="firstName" required>
+        </div>
+
+        <div class="input-group">
+          <label>Nama Belakang</label>
+          <input type="text" id="lastName" required>
+        </div>
+      </div>
+
+      <label>Phone Number</label>
+      <input type="text" id="phone" required>
+
+      <label>Email</label>
+      <input type="email" id="email" required>
+
+      <label>Password</label>
+      <input type="password" id="password" required>
+
+      <button class="login-btn" type="submit">CREATE ACCOUNT</button>
+    </form>
+
+    <div class="login-footer">
+      <p>Sudah Punya Akun?
+         <a href="#" class="login-link">Log In Di Sini</a>
+      </p>
     </div>
+  </div>
 </div>
 
-<style>
-    .modal {
-        display: none; /* Hidden by default */
-        position: fixed; 
-        z-index: 9999; 
-        left: 0;
-        top: 0;
-        width: 100%; 
-        height: 100%; 
-        background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
-        justify-content: center;
-        align-items: center;
+<!-- ===================================================== -->
+<!-- ====================== SCRIPT ======================= -->
+<!-- ===================================================== -->
+
+<script>
+const loginModal  = document.getElementById("loginModal");
+const signupModal = document.getElementById("signupModal");
+const forgotModal = document.getElementById("forgotModal");
+
+const loginBtn = document.getElementById("loginBtn");
+
+const closeLogin  = document.querySelector(".close-login");
+const closeSignup = document.querySelector(".close-signup");
+const closeForgot = document.querySelector(".close-forgot");
+
+const signupLinks = document.querySelectorAll(".signup-link");
+const loginLinks  = document.querySelectorAll(".login-link");
+const forgotLinks = document.querySelectorAll(".forgot");
+const cancelBtns  = document.querySelectorAll(".cancel-btn");
+
+/* SHOW MODALS */
+function openLogin()  { loginModal.classList.add("show"); }
+function openSignup() { signupModal.classList.add("show"); }
+function openForgot() { forgotModal.classList.add("show"); }
+
+/* HIDE MODALS */
+function closeAll() {
+  loginModal.classList.remove("show");
+  signupModal.classList.remove("show");
+  forgotModal.classList.remove("show");
+}
+
+/* USER ICON CLICK HANDLER */
+document.addEventListener("click", (e) => {
+  if (e.target.closest(".fa-user")) {
+    e.preventDefault();
+    const logged = localStorage.getItem("isLoggedIn") === "true";
+    if (logged) window.location.href = "profile.html";
+    else openLogin();
+  }
+});
+
+/* LOGIN */
+if (loginBtn) {
+  loginBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    const email = loginEmail.value.trim().toLowerCase();
+    const pass  = loginPassword.value.trim();
+
+    if (!email || !pass) return alert("Lengkapi data.");
+
+    if (email === "admin@fairygarden.com" && pass === "admin123") {
+      localStorage.setItem("isLoggedIn","true");
+      localStorage.setItem("userRole","admin");
+      window.location.href = "admin.html";
+      return;
     }
-    
-    .modal-content {
-        background-color: #fff;
-        padding: 30px;
-        border-radius: 10px;
-        width: 400px;
-        max-width: 90%;
-        text-align: center;
-        position: relative;
-        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    }
-    
-    .close-btn {
-        position: absolute;
-        top: 15px;
-        right: 20px;
-        font-size: 28px;
-        font-weight: bold;
-        color: #aaa;
-        cursor: pointer;
-    }
-    
-    .close-btn:hover { color: #000; }
-    
-    .input-group { margin-bottom: 15px; }
-    
-    .input-group input {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        box-sizing: border-box;
-    }
-    
-    .login-btn {
-        width: 100%;
-        padding: 12px;
-        background-color: #333;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        font-size: 16px;
-        cursor: pointer;
-        margin-top: 10px;
-    }
-    
-    .login-btn:hover { background-color: #555; }
-    
-    .switch-modal { margin-top: 20px; font-size: 14px; }
-    .switch-modal a { color: #333; font-weight: bold; text-decoration: none; }
-</style>
+
+    const users = JSON.parse(localStorage.getItem("users")) || [];
+    const found = users.find(u => u.email === email && u.password === pass);
+
+    if (!found) return alert("Email atau password salah.");
+
+    localStorage.setItem("isLoggedIn","true");
+    localStorage.setItem("userRole","user");
+    localStorage.setItem("userData", JSON.stringify(found));
+    window.location.href = "profile.html";
+  });
+}
+
+/* SIGN UP */
+signupForm?.addEventListener("submit", (e) => {
+  e.preventDefault();
+
+  const user = {
+    firstName: firstName.value.trim(),
+    lastName: lastName.value.trim(),
+    phone: phone.value.trim(),
+    email: email.value.trim().toLowerCase(),
+    password: password.value.trim(),
+  };
+
+  let users = JSON.parse(localStorage.getItem("users")) || [];
+  if (users.some(u => u.email === user.email)) return alert("Email sudah terdaftar.");
+
+  users.push(user);
+  localStorage.setItem("users", JSON.stringify(users));
+
+  localStorage.setItem("isLoggedIn","true");
+  localStorage.setItem("userRole","user");
+  localStorage.setItem("userData", JSON.stringify(user));
+
+  window.location.href = "profile.html";
+});
+
+/* SWITCH MODALS */
+signupLinks.forEach(a => a.onclick = () => { closeAll(); openSignup(); });
+loginLinks.forEach(a => a.onclick  = () => { closeAll(); openLogin(); });
+forgotLinks.forEach(a => a.onclick = () => { closeAll(); openForgot(); });
+
+cancelBtns.forEach(btn => btn.onclick = () => {
+  closeAll();
+  openLogin();
+});
+
+/* CLOSE BUTTONS */
+closeLogin.onclick  = closeAll;
+closeSignup.onclick = closeAll;
+closeForgot.onclick = closeAll;
+
+/* CLOSE OUTSIDE */
+window.addEventListener("click", e => {
+  if (e.target.classList.contains("modal")) closeAll();
+});
+
+</script>
