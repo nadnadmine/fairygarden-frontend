@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=1440">
   <title>Our Products - Fairy Garden</title>
-
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Metal&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="viewall.css">
   <link rel="stylesheet" href="style.css">
@@ -12,106 +11,82 @@
 </head>
 
 <body>
-<!-- ========== HEADER DAN AUTH ========= -->
   <div id="header-container"></div>
   <div id="auth-container"></div>
 
-  <!-- ========== LOAD HEADER ========== -->
-  <script>
-    fetch("header.html")
-      .then(res => res.text())
-      .then(html => {
-        document.getElementById("header-container").innerHTML = html;
-
-        // User icon logic
-        const userIcon = document.querySelector(".fa-user").parentElement;
-        if (userIcon) {
-          userIcon.addEventListener("click", function (e) {
-            e.preventDefault();
-
-            const loggedIn = localStorage.getItem("isLoggedIn") === "true";
-
-            if (loggedIn) {
-              window.location.href = "profile.html";
-            } else {
-              document.getElementById("loginModal").classList.add("show");
-            }
-          });
-        }
-
-        // Dropdowns
-        const dropdowns = document.querySelectorAll(".dropdown");
-        dropdowns.forEach(dd => {
-          dd.addEventListener("mouseenter", () => {
-            dd.querySelector(".dropdown-menu").style.display = "block";
-          });
-          dd.addEventListener("mouseleave", () => {
-            dd.querySelector(".dropdown-menu").style.display = "none";
-          });
-        });
-      });
-  </script>
-
-  <!-- ========== LOAD MODAL AUTH ========== -->
-  <script>
-    fetch("modal-auth.html")
-      .then(res => res.text())
-      .then(html => {
-        const container = document.getElementById("auth-container");
-        container.innerHTML = html;
-
-        // Jalankan semua <script> yg ada di modal-auth.html
-        const scripts = container.querySelectorAll("script");
-        scripts.forEach(oldScript => {
-          const newScript = document.createElement("script");
-          newScript.textContent = oldScript.textContent;
-          document.body.appendChild(newScript);
-        });
-      });
-  </script>
-
-  <!-- ===== VIEW ALL PRODUCTS ===== -->
   <section class="all-products">
     <h2 class="section-title">Our Products</h2>
-    <div id="viewall-grid" class="products-grid"></div>
+    
+    <div id="viewall-grid" class="products-grid">
+        <p style="text-align:center; width:100%;">Sedang mengambil bunga cantik untukmu...</p>
+    </div>
   </section>
 
-  <!-- FOOTER -->
   <footer>
     <p><b>YOU CAN FIND US ON</b></p>
-    <p>
-      <i class="fa-brands fa-instagram"></i> @fairygarden &nbsp;&nbsp;
-      <i class="fa-regular fa-envelope"></i> fairygarden@gmail.com
-    </p>
+    <p><i class="fa-brands fa-instagram"></i> @fairygarden &nbsp;&nbsp; <i class="fa-regular fa-envelope"></i> fairygarden@gmail.com</p>
   </footer>
 
-  <!-- === PRODUCT GRID SCRIPT === -->
+  <script src="script.js"></script>
+  
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-  const grid = document.getElementById("viewall-grid");
-  if (!grid) return;
+    // Load Header & Auth
+    fetch("header.html").then(res=>res.text()).then(html=>{ 
+        document.getElementById("header-container").innerHTML = html;
+        // Re-attach user icon event (karena header baru diload)
+        const userBtn = document.querySelector(".fa-user");
+        if(userBtn) {
+            userBtn.parentElement.addEventListener("click", (e) => {
+                e.preventDefault();
+                const token = localStorage.getItem("token");
+                if(token) window.location.href="profile.html";
+                else document.getElementById("loginModal").style.display="flex";
+            });
+        }
+    });
+    fetch("modal-auth.html").then(res=>res.text()).then(html=>{ document.getElementById("auth-container").innerHTML = html; });
 
-  // Ambil data produk dari localStorage
-  let products = JSON.parse(localStorage.getItem("products")) || [];
+    // === LOGIC RENDER PRODUK (DARI DATABASE) ===
+    document.addEventListener("DOMContentLoaded", async () => {
+        const grid = document.getElementById("viewall-grid");
+        if (!grid) return;
 
-  // Kalau masih kosong (pertama kali load), isi defaultProducts
-  if (products.length === 0) {
-    products = defaultProducts; // boleh diambil dari file lain
-    localStorage.setItem("products", JSON.stringify(products));
-  }
+        try {
+            const res = await fetch("https://fairygarden-backend.vercel.app/api/products");
+            if(!res.ok) throw new Error("Gagal fetch");
+            const products = await res.json();
 
-  // Render produk
-  grid.innerHTML = products.map(p => `
-    <a href="product-detail.html?id=${p.id}" class="product-card">
-      <div class="product-box">
-        <img src="${p.img}" alt="${p.name}">
-      </div>
-      <b>${p.name}</b>
-      <div>Rp. ${Number(p.price).toLocaleString("id-ID")}</div>
-    </a>
-  `).join("");
-});
+            grid.innerHTML = ""; // Hapus loading
+
+            if(products.length === 0) {
+                grid.innerHTML = "<p>Belum ada produk.</p>";
+                return;
+            }
+
+            products.forEach(p => {
+                // Fix Image
+                let img = p.image_url;
+                if(img && !img.startsWith('http')) {
+                    img = "https://fairygarden-backend.vercel.app/api/uploads/" + img;
+                }
+
+                // Render Card (Link pakai product_id angka)
+                grid.innerHTML += `
+                    <a href="product-detail.html?id=${p.product_id}" class="product-card">
+                      <div class="product-box">
+                        <img src="${img}" alt="${p.product_name}">
+                      </div>
+                      <b>${p.product_name}</b>
+                      <div>Rp. ${parseInt(p.price).toLocaleString("id-ID")}</div>
+                    </a>
+                `;
+            });
+
+        } catch (err) {
+            grid.innerHTML = "<p>Gagal memuat produk.</p>";
+            console.error(err);
+        }
+    });
   </script>
-
 </body>
 </html>

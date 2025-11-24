@@ -5,28 +5,25 @@
   <meta name="viewport" content="width=1440">
   <title>Fairy Garden</title>
 
-  <!-- Fonts & Icons -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Jacquarda+Bastarda+9&family=Metal&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
-  <!-- ===== TOP BAR ===== -->
+  <div id="auth-container"></div>
+
   <div class="top-bar">
     Place an order online for Delivery or Pick Up, or contact us at +62 812 3456 7890
   </div>
 
-  <!-- ===== HEADER ===== -->
   <header>
     <h1 class="logo">Fairy Garden</h1>
     <nav>
       <ul>
-        <li><a href="#">Home</a></li>
-
-        <!-- Dropdown Occasions -->
+        <li><a href="index.html">Home</a></li>
         <li class="dropdown">
-          <a href="#" class="dropbtn">Occasions</a>
+          <a href="#">Occasions</a>
           <ul class="dropdown-menu">
             <li><a href="occasions.html?category=birthday">Birthday</a></li>
             <li><a href="occasions.html?category=mothersday">Mother’s Day</a></li>
@@ -36,242 +33,114 @@
             <li><a href="occasions.html">Explore All Occasions</a></li>
           </ul>
         </li>
-
         <li><a href="about.html">About Us</a></li>
       </ul>
     </nav>
-
     <div class="header-icons">
-      <a href="#" aria-label="Login"><i class="fa-regular fa-user"></i></a>
-      <a href="cart.html" aria-label="Cart"><i class="fa-solid fa-cart-shopping"></i></a>
+      <a href="#" id="userButton"><i class="fa-regular fa-user"></i></a>
+      <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i></a>
     </div>
   </header>
 
-  <!-- ===== HERO ===== -->
   <section class="hero" style="background:url('https://i.pinimg.com/1200x/87/68/f4/8768f444375a92fde9404f7ecf672b2a.jpg') center/cover no-repeat;">
     <div class="hero-content">
       <div class="search-container">
-        <input type="text" id="homeSearchInput" name="query" placeholder="Search..." class="search-input" autocomplete="new-password" autocorrects="off" autocapitalize="off" spellcheck="false">
+        <input type="text" id="homeSearchInput" placeholder="Search..." class="search-input">
         <i class="fa-solid fa-magnifying-glass search-icon" id="homeSearchBtn"></i>
       </div>
     </div>
   </section>
 
-  <!-- ===== PROMISES ===== -->
   <section class="promises">
     <h2 class="section-title">Our Promises</h2>
     <div class="promises-grid">
-      <div class="promise">
-        <div class="circle">💐</div>
-        <p>Freshness Guaranteed</p>
-      </div>
-      <div class="promise">
-        <div class="circle">⏰</div>
-        <p>On-Time Delivery</p>
-      </div>
-      <div class="promise">
-        <div class="circle">🤍</div>
-        <p>Personal Touch in Every Bouquet</p>
-      </div>
-      <div class="promise">
-        <div class="circle">🌸</div>
-        <p>Satisfaction & Care</p>
-      </div>
+      <div class="promise"><div class="circle">💐</div><p>Freshness Guaranteed</p></div>
+      <div class="promise"><div class="circle">⏰</div><p>On-Time Delivery</p></div>
+      <div class="promise"><div class="circle">🤍</div><p>Personal Touch in Every Bouquet</p></div>
+      <div class="promise"><div class="circle">🌸</div><p>Satisfaction & Care</p></div>
     </div>
   </section>
 
-  <!-- ===== POPULAR PRODUCTS ===== -->
   <section class="popular">
     <h2 class="section-title">Our Most Popular Bouquets</h2>
-    <div class="products-grid">
-      <div class="product-card"><a href="product-detail.html?id=rose-harmony"><img src="https://i.pinimg.com/1200x/68/a1/48/68a14894f37c6659176c61a20a57bb0d.jpg" alt="Rose Harmony"><b>Rose Harmony</b><div>Rp. 250.000</div></a></div>
-      <div class="product-card"><a href="product-detail.html?id=lily-blossom"><img src="https://i.pinimg.com/736x/99/e2/ab/99e2ab5199035c32e4a4b1f564e76d0c.jpg" alt="Lily Blossom"><b>Lily Blossom</b><div>Rp. 275.000</div></a></div>
-      <div class="product-card"><a href="product-detail.html?id=tulip-delight"><img src="https://i.pinimg.com/736x/bd/6a/ec/bd6aec14520f3b5763ac221063db719e.jpg" alt="Tulip Delight"><b>Tulip Delight</b><div>Rp. 300.000</div></a></div>
-      <div class="product-card"><a href="product-detail.html?id=peony-grace"><img src="https://i.pinimg.com/736x/84/86/2b/84862b87ef673479e8487f2dd549c75e.jpg" alt="Peony Grace"><b>Peony Grace</b><div>Rp. 285.000</div></a></div>
-      <div class="product-card"><a href="product-detail.html?id=sunflower-joy"><img src="https://i.pinimg.com/1200x/93/ab/8c/93ab8c4747d23016d3b6cbc1194c0a63.jpg" alt="Sunflower Joy"><b>Sunflower Joy</b><div>Rp. 260.000</div></a></div>
-      <div class="product-card"><a href="product-detail.html?id=daisy-charm"><img src="https://i.pinimg.com/736x/1e/df/fb/1edffbba617cbfe9c3576aead8e823ee.jpg" alt="Daisy Charm"><b>Daisy Charm</b><div>Rp. 230.000</div></a></div>
-      <div class="product-card"><a href="product-detail.html?id=orchid-dream"><img src="https://i.pinimg.com/1200x/14/2f/b2/142fb23313806b79364dd24c19447b8a.jpg" alt="Orchid Dream"><b>Orchid Dream</b><div>Rp. 350.000</div></a></div>
-      <div class="product-card"><a href="product-detail.html?id=carnation-bliss"><img src="https://i.pinimg.com/1200x/9e/71/1e/9e711e33e43ad8a805459c941bd8ff01.jpg" alt="Carnation Bliss"><b>Carnation Bliss</b><div>Rp. 240.000</div></a></div>
+    
+    <div class="products-grid" id="homeProductContainer">
+        <p style="text-align:center; width:100%;">Memuat produk terbaru...</p>
     </div>
+
     <a href="viewall.html" class="btn">View All Products</a>
   </section>
 
-  <!-- ===== ABOUT ===== -->
   <section class="about-section">
     <div class="about-left">
       <div class="about-text">
         <h4>About Us</h4>
-        <p>Fairy Garden adalah rumah bunga yang berlokasi di Jakarta Selatan. Kami menghadirkan rangkaian bunga cantik untuk setiap momen spesial anda. Dengan kualitas dan desain terbaik, kami siap membantu Anda menyampaikan rasa cinta, syukur, dan kebahagiaan lewat bahasa bunga.</p>
+        <p>Fairy Garden adalah rumah bunga yang berlokasi di Jakarta Selatan. Kami menghadirkan rangkaian bunga cantik untuk setiap momen spesial anda.</p>
       </div>
       <img class="about-box" src="https://i.pinimg.com/1200x/75/f6/de/75f6ded737f911c25ee9f43505a7c0fd.jpg" alt="Flower Shop">
     </div>
     <div class="about-right">
-      <iframe 
-                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3965.6032320820937!2d106.7943054!3d-6.3157364000000005!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69ee3e065d4f6b%3A0xe176f81a31564166!2sUniversitas%20Pembangunan%20Nasional%20%22Veteran%22%20Jakarta!5e0!3m2!1sid!2sid!4v1763371035669!5m2!1sid!2sid" 
-                class="about-box" 
-                style="border:0;" 
-                allowfullscreen="" 
-                loading="lazy" 
-                referrerpolicy="no-referrer-when-downgrade">
-          </iframe>
-          <div class="contact">
-            <h4>Where To Find Us</h4>
-            <p class="phone">+62 812 3456 7890</p>
-          </div>
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d126906.96295482372!2d106.7196755606336!3d-6.28410002272969!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f1ec2422b0b3%3A0x396342e94a4b5c9b!2sSouth%20Jakarta%2C%20South%20Jakarta%20City%2C%20Jakarta!5e0!3m2!1sen!2sid!4v1700000000000!5m2!1sen!2sid" 
+              class="about-box" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+      <div class="contact">
+        <h4>Where To Find Us</h4>
+        <p class="phone">+62 812 3456 7890</p>
+      </div>
     </div>
   </section>
 
-   <!-- ===== FOOTER ===== -->
   <footer>
     <p><b>YOU CAN FIND US ON</b></p>
-    <p><i class="fa-brands fa-instagram"></i> @fairygarden &nbsp;&nbsp;
-       <i class="fa-regular fa-envelope"></i> fairygarden@gmail.com</p>
+    <p><i class="fa-brands fa-instagram"></i> @fairygarden &nbsp;&nbsp; <i class="fa-regular fa-envelope"></i> fairygarden@gmail.com</p>
   </footer>
 
-  <!-- ===== LOGIN, SIGNUP, FORGOT MODALS ==== --> 
-  <!-- ========== LOGIN MODAL ========== -->
-  <div id="loginModal" class="modal">
-  <div class="modal-content">
-    <span class="close-btn">&times;</span>
-    <h2 class="login-title">Log In</h2>
-    <label>Email</label>
-    <input type="email" id="loginEmail" placeholder="email@gmail.com">
-    <label>Password</label>
-    <input type="password" id="loginPassword" placeholder="Masukkan Password">
-    <button class="login-btn">LOG IN</button>
-
-      <div class="login-footer">
-        <a href="#" class="forgot">Lupa Sandi?</a>
-        <p>Belum Memiliki Akun? <a href="#" class="signup-link">Sign Up Di Sini</a></p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ========== FORGOT PASSWORD MODAL ========== -->
-  <div id="forgotModal" class="modal">
-    <div class="modal-content">
-      <span class="close-btn">&times;</span>
-      <h2 class="login-title">Ubah Sandi</h2>
-      <p class="forgot-desc">Kami akan mengirim email untuk ubah sandi.</p>
-      <label>Email</label>
-      <input type="email" placeholder="email@gmail.com">
-      <button class="login-btn">KIRIM</button>
-      <button class="cancel-btn">BATAL</button>
-
-      <div class="login-footer">
-        <p>Belum Memiliki Akun? <a href="#" class="signup-link">Sign Up Di Sini</a></p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ========== SIGN UP MODAL ========== -->
-  <div id="signupModal" class="modal">
-    <div class="modal-content">
-      <span class="close-btn">&times;</span>
-      <h2 class="login-title">Sign Up</h2>
-
-      <form class="signup-form" id="signupForm">
-  <div class="name-row">
-    <div class="input-group">
-      <label>Nama Depan</label>
-      <input type="text" id="firstName" placeholder="Masukkan Nama Depan Anda" required>
-    </div>
-    <div class="input-group">
-      <label>Nama Belakang</label>
-      <input type="text" id="lastName" placeholder="Masukkan Nama Belakang Anda" required>
-    </div>
-  </div>
-
-  <label>Phone Number</label>
-  <input type="text" id="phone" placeholder="Nomor Telepon" required>
-
-  <label>Email</label>
-  <input type="email" id="email" placeholder="email@gmail.com" required>
-
-  <label>Password</label>
-  <input type="password" id="password" placeholder="Masukkan Password" required>
-
-  <button class="login-btn" type="submit">CREATE ACCOUNT</button>
-</form>
-
-      <div class="login-footer">
-        <p>Sudah Punya Akun? <a href="#" class="login-link">Log In Di Sini</a></p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== SCRIPTS ===== -->
   <script src="script.js"></script>
+  
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const searchInput = document.getElementById("homeSearchInput");
-      const searchBtn = document.getElementById("homeSearchBtn");
+    fetch("modal-auth.html").then(res=>res.text()).then(html=>{ document.getElementById("auth-container").innerHTML = html; });
 
-      // ketika icon diklik
-      if (searchBtn && searchInput) {
-        searchBtn.addEventListener("click", () => {
-          const keyword = searchInput.value.trim();
-          if (keyword) {
-            window.location.href = `search.html?q=${encodeURIComponent(keyword)}`;
-          }
-        });
-      }
+    // Load Popular Products (8 Teratas)
+    document.addEventListener("DOMContentLoaded", async () => {
+        const container = document.getElementById("homeProductContainer");
+        if(!container) return;
 
-      // ketika tekan Enter
-      if (searchInput) {
-        searchInput.addEventListener("keypress", (e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            const keyword = searchInput.value.trim();
-            if (keyword) {
-              window.location.href = `search.html?q=${encodeURIComponent(keyword)}`;
-            }
-          }
-        });
-      }
+        try {
+            // Ambil Data dari API Vercel (Database Asli)
+            const res = await fetch("https://fairygarden-backend.vercel.app/api/products");
+            if(!res.ok) throw new Error("Gagal fetch");
+            
+            const data = await res.json();
+            
+            // Ambil 8 produk pertama saja
+            const popular = data.slice(0, 8); 
+
+            container.innerHTML = ""; // Bersihkan loading
+
+            popular.forEach(p => {
+                // Fix Gambar URL
+                let img = p.image_url;
+                if(img && !img.startsWith('http')) {
+                    img = "https://fairygarden-backend.vercel.app/uploads/" + img;
+                }
+
+                // Buat HTML Card (Link ?id=ANGKA)
+                const card = `
+                  <div class="product-card">
+                    <a href="product-detail.html?id=${p.product_id}">
+                      <img src="${img}" alt="${p.product_name}">
+                      <b>${p.product_name}</b>
+                      <div>Rp. ${parseInt(p.price).toLocaleString("id-ID")}</div>
+                    </a>
+                  </div>
+                `;
+                container.innerHTML += card;
+            });
+
+        } catch (err) {
+            container.innerHTML = "<p>Gagal memuat produk.</p>";
+            console.error(err);
+        }
     });
   </script>
-  <script>
-      document.addEventListener("DOMContentLoaded", () => {
-        // Ambil elemen grid
-        const grid = document.getElementById("popular-products-grid");
-        if (!grid) return;
-
-        // Master list produk sebagai fallback
-        const defaultProducts = [
-          { id: "rose-harmony", name: "Rose Harmony", category: "Birthday", stock: 15, price: 250000, img: "https://i.pinimg.com/1200x/68/a1/48/68a14894f37c6659176c61a20a57bb0d.jpg", sold: 90 },
-          { id: "lily-blossom", name: "Lily Blossom", category: "Mother's Day", stock: 20, price: 275000, img: "https://i.pinimg.com/736x/99/e2/ab/99e2ab5199035c32e4a4b1f564e76d0c.jpg", sold: 100 },
-          { id: "tulip-delight", name: "Tulip Delight", category: "Graduation", stock: 12, price: 300000, img: "https://i.pinimg.com/736x/bd/6a/ec/bd6aec14520f3b5763ac221063db719e.jpg", sold: 60},
-          { id: "peony-grace", name: "Peony Grace", category: "Anniversary", stock: 18, price: 285000, img: "https://i.pinimg.com/736x/84/86/2b/84862b87ef673479e8487f2dd549c75e.jpg", sold: 110 },
-          { id: "sunflower-joy", name: "Sunflower Joy", category: "Birthday", stock: 25, price: 260000, img: "https://i.pinimg.com/1200x/93/ab/8c/93ab8c4747d23016d3b6cbc1194c0a63.jpg", sold: 80 },
-          { id: "daisy-charm", name: "Daisy Charm", category: "Birthday", stock: 30, price: 230000, img: "https://i.pinimg.com/736x/1e/df/fb/1edffbba617cbfe9c3576aead8e823ee.jpg", sold: 95 },
-          { id: "orchid-dream", name: "Orchid Dream", category: "Just Because", stock: 10, price: 350000, img: "https://i.pinimg.com/1200x/14/2f/b2/142fb23313806b79364dd24c19447b8a.jpg", sold: 30},
-          { id: "carnation-bliss", name: "Carnation Bliss", category: "Mother's Day", stock: 22, price: 240000, img: "https://i.pinimg.com/1200x/9e/71/1e/9e711e33e43ad8a805459c941bd8ff01.jpg", sold: 75 }
-        ];
-
-        // Ambil data dari localStorage
-        // Ambil data dari localStorage
-        const productsFromStorage = JSON.parse(localStorage.getItem("products"));
-        const allProducts = (productsFromStorage && productsFromStorage.length > 0) 
-        ? productsFromStorage 
-        : defaultProducts;
-
-        // Ambil 8 produk pertama saja untuk halaman utama
-        const popularProducts = allProducts.slice(0, 8);
-
-        // Render produk ke HTML
-        grid.innerHTML = popularProducts.map(p => `
-          <div class="product-card">
-            <a href="product-detail.html?id=${p.id}">
-              <img src="${p.img}" alt="${p.name}">
-              <b>${p.name}</b>
-              <div>Rp. ${p.price.toLocaleString("id-ID")}</div>
-            </a>
-          </div>
-        `).join("");
-      });
-    </script>
-  <script>
-</script>
 </body>
 </html>

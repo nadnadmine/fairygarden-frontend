@@ -12,26 +12,59 @@ const signupLinks = document.querySelectorAll(".signup-link");
 const loginLinks = document.querySelectorAll(".login-link");
 
 // =========================================================
-// 2. LOAD PRODUK (UNTUK HALAMAN HOME & SHOP)
+// 2. LOAD PRODUK (RENDER OTOMATIS KE HALAMAN)
 // =========================================================
 async function loadProducts() {
-    // Hanya jalankan jika BUKAN di halaman detail (agar tidak double fetch)
-    if (window.location.pathname.includes("product-detail.html")) return;
+    // A. Logic untuk Halaman Detail (Ambil 1 Produk)
+    if (window.location.pathname.includes("product-detail.html")) {
+        initProductDetail(); 
+        return; 
+    }
 
+    // B. Logic untuk Halaman Home / View-All (Ambil Semua Produk)
     try {
         const response = await fetch(`${API_URL}/products`);
         if (!response.ok) throw new Error("Gagal load produk");
         const data = await response.json();
 
-        // Render produk di halaman Home/Shop jika ada elemennya
-        // (Logika render card produk biasanya ada di sini atau file HTML terpisah)
-        // Kita simpan ke global variable untuk keperluan lain
-        data.forEach(item => {
-            products[item.product_id] = item;
-        });
-    } catch (error) { console.error("Error:", error); }
-}
-loadProducts(); 
+        // Simpan ke global variable (opsional, buat cache)
+        data.forEach(item => { products[item.product_id] = item; });
+
+        // CARI WADAH DI HTML
+        const container = document.getElementById("productContainer");
+        
+        // JIKA WADAH DITEMUKAN, ISI DENGAN DATA DARI DATABASE
+        if (container) {
+            container.innerHTML = ""; // Bersihkan tulisan "Memuat..."
+            
+            data.forEach(item => {
+                // Fix Image URL
+                let imgUrl = item.image_url;
+                if (imgUrl && !imgUrl.startsWith('http')) {
+                    imgUrl = `${API_URL.replace('/api', '')}/uploads/${imgUrl}`;
+                }
+
+                // BUAT CARD HTML (Sesuaikan class dengan CSS kamu)
+                // PERHATIKAN BAGIAN HREF: ?id=${item.product_id} <-- INI KUNCINYA
+                const productCard = `
+                    <div class="product-card" style="border:1px solid #eee; padding:15px; border-radius:8px; text-align:center;">
+                        <a href="product-detail.html?id=${item.product_id}" style="text-decoration:none; color:inherit;">
+                            <img src="${imgUrl}" alt="${item.product_name}" style="width:100%; height:200px; object-fit:cover; border-radius:5px;">
+                            <h3 style="margin:10px 0; font-size:1.1rem;">${item.product_name}</h3>
+                            <p style="color:#d63384; font-weight:bold;">Rp ${parseInt(item.price).toLocaleString("id-ID")}</p>
+                        </a>
+                    </div>
+                `;
+                container.innerHTML += productCard;
+            });
+        }
+
+    } catch (error) { 
+        console.error("Error:", error);
+        const container = document.getElementById("productContainer");
+        if(container) container.innerHTML = "<p>Gagal memuat produk.</p>";
+    }
+} 
 
 // =========================================================
 // 3. GLOBAL LISTENERS
