@@ -4,170 +4,178 @@
 const API_URL = "https://fairygarden-backend.vercel.app/api"; 
 let products = {}; 
 
-// Elemen Modal
-const loginModal = document.getElementById("loginModal");
-const signupModal = document.getElementById("signupModal");
-const closeBtns = document.querySelectorAll(".close-btn");
-const signupLinks = document.querySelectorAll(".signup-link");
-const loginLinks = document.querySelectorAll(".login-link");
-
 // =========================================================
-// 2. LOAD PRODUK (RENDER OTOMATIS KE HALAMAN)
+// 2. LOAD PRODUK (RENDER OTOMATIS)
 // =========================================================
 async function loadProducts() {
-    // A. Logic untuk Halaman Detail (Ambil 1 Produk)
+    // A. Logic Halaman Detail
     if (window.location.pathname.includes("product-detail.html")) {
         initProductDetail(); 
         return; 
     }
 
-    // B. Logic untuk Halaman Home / View-All (Ambil Semua Produk)
+    // B. Logic Halaman Home / View-All
     try {
         const response = await fetch(`${API_URL}/products`);
         if (!response.ok) throw new Error("Gagal load produk");
         const data = await response.json();
 
-        // Simpan ke global variable (opsional, buat cache)
+        // Simpan ke global
         data.forEach(item => { products[item.product_id] = item; });
 
-        // CARI WADAH DI HTML
-        const container = document.getElementById("productContainer");
+        // Render ke wadah (jika ada)
+        const container = document.getElementById("productContainer") || document.getElementById("viewall-grid");
         
-        // JIKA WADAH DITEMUKAN, ISI DENGAN DATA DARI DATABASE
         if (container) {
-            container.innerHTML = ""; // Bersihkan tulisan "Memuat..."
-            
+            container.innerHTML = ""; 
             data.forEach(item => {
-                // Fix Image URL
                 let imgUrl = item.image_url;
                 if (imgUrl && !imgUrl.startsWith('http')) {
                     imgUrl = `${API_URL.replace('/api', '')}/uploads/${imgUrl}`;
                 }
 
-                // BUAT CARD HTML (Sesuaikan class dengan CSS kamu)
-                // PERHATIKAN BAGIAN HREF: ?id=${item.product_id} <-- INI KUNCINYA
                 const productCard = `
-                    <div class="product-card" style="border:1px solid #eee; padding:15px; border-radius:8px; text-align:center;">
+                    <div class="product-card">
                         <a href="product-detail.html?id=${item.product_id}" style="text-decoration:none; color:inherit;">
-                            <img src="${imgUrl}" alt="${item.product_name}" style="width:100%; height:200px; object-fit:cover; border-radius:5px;">
-                            <h3 style="margin:10px 0; font-size:1.1rem;">${item.product_name}</h3>
-                            <p style="color:#d63384; font-weight:bold;">Rp ${parseInt(item.price).toLocaleString("id-ID")}</p>
+                            <img src="${imgUrl}" alt="${item.product_name}">
+                            <b>${item.product_name}</b>
+                            <div>Rp ${parseInt(item.price).toLocaleString("id-ID")}</div>
                         </a>
                     </div>
                 `;
                 container.innerHTML += productCard;
             });
         }
-
-    } catch (error) { 
-        console.error("Error:", error);
-        const container = document.getElementById("productContainer");
-        if(container) container.innerHTML = "<p>Gagal memuat produk.</p>";
-    }
-} 
+    } catch (error) { console.error("Error:", error); }
+}
+loadProducts(); 
 
 // =========================================================
-// 3. GLOBAL LISTENERS (VERSI FINAL & PEKA)
+// 3. GLOBAL LISTENERS (VERSI DEBUG & PEKA)
 // =========================================================
 document.addEventListener("click", (e) => {
-    // Cari elemen link <a> terdekat yang diklik
-    const clickedLink = e.target.closest("a");
     
-    // Cek apakah yang diklik adalah tombol User?
-    // (Bisa berupa icon .fa-user, ATAU link yang membungkus icon tersebut)
-    const isUserButton = e.target.matches(".fa-user") || 
-                         (clickedLink && clickedLink.querySelector(".fa-user")) || 
-                         (clickedLink && clickedLink.id === "userButton");
+    // --- A. LOGIC TOMBOL USER (PROFILE) ---
+    // Gunakan .closest() untuk menangkap klik baik di Icon maupun di Link pembungkusnya
+    const userBtn = e.target.closest("#userButton") || e.target.closest(".fa-user");
 
-    if (isUserButton) {
-        e.preventDefault(); // Cegah link pindah halaman (jika href="#")
-        
+    if (userBtn) {
+        e.preventDefault(); // Mencegah halaman melompat ke atas (href="#")
+        console.log("✅ Tombol User DIKLIK!"); // Cek di Console Browser
+
         const token = localStorage.getItem("token");
         const userData = JSON.parse(localStorage.getItem("userData") || "{}");
-        
+
         if (token) {
-            // Jika sudah login, arahkan sesuai role
+            console.log("Status: Sudah Login -> Redirect");
             if (userData.role === 'admin') window.location.href = "admin.html";
             else window.location.href = "profile.html";
         } else {
-            // Jika belum login, buka modal
-            if (loginModal) loginModal.style.display = "flex";
+            console.log("Status: Belum Login -> Buka Modal");
+            const modal = document.getElementById("loginModal");
+            if (modal) modal.style.display = "flex";
+            else alert("Modal Login tidak ditemukan! Cek koneksi internet.");
         }
+        return; // Stop eksekusi agar tidak bentrok dengan logic lain
     }
 
-    // Tutup Modal jika klik di luar (Overlay)
-    if (e.target === loginModal) loginModal.style.display = "none";
-    if (e.target === signupModal) signupModal.style.display = "none";
+    // --- B. LOGIC TOMBOL TUTUP MODAL (X) ---
+    if (e.target.matches(".close-btn")) {
+        const modal = e.target.closest(".modal");
+        if (modal) modal.style.display = "none";
+    }
+
+    // --- C. LOGIC KLIK BACKGROUND MODAL (TUTUP) ---
+    if (e.target.classList.contains("modal")) {
+        e.target.style.display = "none";
+    }
+
+    // --- D. SWITCH LOGIN <-> REGISTER ---
+    if (e.target.matches(".signup-link")) {
+        e.preventDefault();
+        const loginM = document.getElementById("loginModal");
+        const signupM = document.getElementById("signupModal");
+        if(loginM) loginM.style.display = "none";
+        if(signupM) signupM.style.display = "flex";
+    }
+    if (e.target.matches(".login-link")) {
+        e.preventDefault();
+        const loginM = document.getElementById("loginModal");
+        const signupM = document.getElementById("signupModal");
+        if(signupM) signupM.style.display = "none";
+        if(loginM) loginM.style.display = "flex";
+    }
+
+    // --- E. TOMBOL LOGIN (DI DALAM MODAL) ---
+    if (e.target.matches(".login-btn") && e.target.id === "mainLoginBtn") {
+        handleLogin(e);
+    }
 });
 
 // =========================================================
-// 4. AUTH (LOGIN & REGISTER)
+// 4. LOGIC LOGIN & REGISTER (FUNGSI TERPISAH)
 // =========================================================
-if (loginModal) {
-    const loginBtn = document.getElementById("mainLoginBtn") || loginModal.querySelector(".login-btn");
-    const loginInputs = loginModal.querySelectorAll("input");
-    if (loginBtn) {
-        const newLoginBtn = loginBtn.cloneNode(true);
-        loginBtn.parentNode.replaceChild(newLoginBtn, loginBtn);
-        newLoginBtn.addEventListener("click", async (e) => {
-            e.preventDefault();
-            const email = loginInputs[0].value.trim();
-            const password = loginInputs[1].value.trim();
-            if (!email || !password) return alert("Isi email & password");
-            try {
-                const res = await fetch(`${API_URL}/auth/login`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({email, password})
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    localStorage.setItem("token", data.token);
-                    localStorage.setItem("isLoggedIn", "true");
-                    localStorage.setItem("userData", JSON.stringify(data.user)); 
-                    
-                    const fName = data.user.first_name || data.user.firstName || "User";
-                    alert(`Halo, ${fName}!`);
-                    
-                    if(data.user.role === 'admin') window.location.href = "admin.html";
-                    else window.location.href = "profile.html";
-                } else alert(data.error || "Login Gagal");
-            } catch (err) { alert("Gagal koneksi server"); }
+async function handleLogin(e) {
+    e.preventDefault();
+    // Cari input SECARA DINAMIS (karena modal baru muncul)
+    const emailInput = document.querySelector("#loginModal input[type='email']");
+    const passInput = document.querySelector("#loginModal input[type='password']");
+    
+    const email = emailInput ? emailInput.value.trim() : "";
+    const password = passInput ? passInput.value.trim() : "";
+
+    if (!email || !password) return alert("Isi email & password");
+
+    try {
+        const res = await fetch(`${API_URL}/auth/login`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email, password})
         });
-    }
+        const data = await res.json();
+        if (res.ok) {
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("isLoggedIn", "true");
+            localStorage.setItem("userData", JSON.stringify(data.user)); 
+            
+            const fName = data.user.first_name || data.user.firstName || "User";
+            alert(`Halo, ${fName}!`);
+            
+            // Tutup modal
+            const loginM = document.getElementById("loginModal");
+            if(loginM) loginM.style.display = "none";
+
+            if(data.user.role === 'admin') window.location.href = "admin.html";
+            else window.location.href = "profile.html";
+        } else alert(data.error || "Login Gagal");
+    } catch (err) { alert("Gagal koneksi server"); }
 }
 
-if (signupModal) {
-    const signupForm = document.getElementById("signupForm");
-    if (signupForm) {
-        const newSignupForm = signupForm.cloneNode(true);
-        signupForm.parentNode.replaceChild(newSignupForm, signupForm);
-        newSignupForm.addEventListener("submit", async (e) => {
-            e.preventDefault();
-            const firstName = document.getElementById("firstName").value;
-            const lastName = document.getElementById("lastName").value;
-            const phone = document.getElementById("phone").value;
-            const email = document.getElementById("email").value;
-            const password = document.getElementById("password").value;
-            try {
-                const res = await fetch(`${API_URL}/auth/register`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ first_name: firstName, last_name: lastName, phone, email, password })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    alert("Register Berhasil! Silakan Login.");
-                    signupModal.style.display = "none";
-                    loginModal.style.display = "flex";
-                } else alert(data.error);
-            } catch (err) { alert("Error koneksi"); }
-        });
+// Event Listener Khusus Form Signup (Delegated)
+document.addEventListener("submit", async (e) => {
+    if (e.target.id === "signupForm") {
+        e.preventDefault();
+        const firstName = document.getElementById("firstName").value;
+        const lastName = document.getElementById("lastName").value;
+        const phone = document.getElementById("phone").value;
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        try {
+            const res = await fetch(`${API_URL}/auth/register`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ first_name: firstName, last_name: lastName, phone, email, password })
+            });
+            const data = await res.json();
+            if (res.ok) {
+                alert("Register Berhasil! Silakan Login.");
+                document.getElementById("signupModal").style.display = "none";
+                document.getElementById("loginModal").style.display = "flex";
+            } else alert(data.error);
+        } catch (err) { alert("Error koneksi"); }
     }
-}
-closeBtns.forEach(btn => btn.addEventListener("click", () => [loginModal, signupModal].forEach(m => m && (m.style.display="none"))));
-signupLinks.forEach(l => l.addEventListener("click", (e) => { e.preventDefault(); loginModal.style.display="none"; signupModal.style.display="flex"; }));
-loginLinks.forEach(l => l.addEventListener("click", (e) => { e.preventDefault(); signupModal.style.display="none"; loginModal.style.display="flex"; }));
+});
 
 // =========================================================
 // 5. HALAMAN PROFILE
@@ -198,11 +206,10 @@ async function initProfilePage() {
         }
     } catch (err) { console.error("Gagal load profile", err); }
     
-    // Load Order History
+    // Load Order History (Sama seperti sebelumnya)
     try {
         const resOrder = await fetch(`${API_URL}/orders`, { headers: { 'Authorization': `Bearer ${token}` } });
         const orderListEl = document.getElementById("ordersList");
-        
         if (resOrder.ok && orderListEl) {
             const orders = await resOrder.json();
             if (orders.length === 0) {
@@ -223,8 +230,7 @@ async function initProfilePage() {
                                 <b>Order #${order.order_id} - ${order.status}</b>
                                 <p>To: ${order.recipient_name} | Total: Rp ${parseFloat(order.total_price).toLocaleString("id-ID")}</p>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                     orderListEl.appendChild(div);
                 });
             }
@@ -233,7 +239,7 @@ async function initProfilePage() {
 }
 
 // =========================================================
-// 6. HALAMAN DETAIL PRODUK (UPDATE MANDIRI)
+// 6. HALAMAN DETAIL PRODUK
 // =========================================================
 if (window.location.pathname.includes("product-detail.html")) {
     initProductDetail();
@@ -242,148 +248,126 @@ if (window.location.pathname.includes("product-detail.html")) {
 async function initProductDetail() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
-
-    if (!id) {
-        // Jika tidak ada ID, jangan lakukan apa-apa (atau redirect)
-        console.error("ID Produk tidak ditemukan di URL");
-        return;
-    }
+    if (!id) return;
 
     try {
-        // FETCH LANGSUNG DATA PRODUK SPESIFIK DARI SERVER
         const response = await fetch(`${API_URL}/products/${id}`);
         if (!response.ok) throw new Error("Produk tidak ditemukan");
         
         const product = await response.json();
-
-        // Fix Gambar URL
         let imgUrl = product.image_url;
-        if (imgUrl && !imgUrl.startsWith('http')) {
-            imgUrl = `${API_URL.replace('/api', '')}/uploads/${imgUrl}`;
-        }
+        if (imgUrl && !imgUrl.startsWith('http')) imgUrl = `${API_URL.replace('/api', '')}/uploads/${imgUrl}`;
 
-        // UPDATE TAMPILAN
-        const imgEl = document.querySelector(".product-image img");
-        if(imgEl) {
-            imgEl.src = imgUrl;
-            imgEl.alt = product.product_name;
-        }
+        if(document.querySelector(".product-image img")) document.querySelector(".product-image img").src = imgUrl;
+        if(document.querySelector(".product-info h2")) document.querySelector(".product-info h2").textContent = product.product_name;
+        if(document.querySelector(".price")) document.querySelector(".price").textContent = `Rp. ${parseInt(product.price).toLocaleString("id-ID")}`;
+        if(document.querySelector(".desc")) document.querySelector(".desc").textContent = product.description || "Tidak ada deskripsi.";
 
-        const nameEl = document.querySelector(".product-info h2");
-        if(nameEl) nameEl.textContent = product.product_name;
-
-        const priceEl = document.querySelector(".price");
-        if(priceEl) priceEl.textContent = `Rp. ${parseInt(product.price).toLocaleString("id-ID")}`;
-
-        const descEl = document.querySelector(".desc");
-        if(descEl) descEl.textContent = product.description || "Tidak ada deskripsi.";
-
-        // SETUP TOMBOL ADD TO CART
         const addCartBtn = document.querySelector(".add-cart");
         if (addCartBtn) {
             const newBtn = addCartBtn.cloneNode(true);
             addCartBtn.parentNode.replaceChild(newBtn, addCartBtn);
-            
             newBtn.addEventListener("click", (e) => {
                 e.preventDefault();
-                // Siapkan data object yang bersih untuk Cart
-                const productDataForCart = {
-                    id: product.product_id,
-                    name: product.product_name,
-                    price: product.price,
-                    img: imgUrl
-                };
-                addToCartLogic(productDataForCart);
+                addToCartLogic(product);
             });
         }
-
-    } catch (err) {
-        console.error(err);
-        const infoEl = document.querySelector(".product-info");
-        if(infoEl) infoEl.innerHTML = "<p>Gagal memuat informasi produk. Pastikan ID produk benar.</p>";
-    }
+    } catch (err) { console.error(err); }
 }
 
-// LOGIC ADD TO CART
 async function addToCartLogic(product) {
     const token = localStorage.getItem("token");
     if (!token) {
-        alert("Silakan login dulu! 🌸");
-        if(loginModal) loginModal.style.display = "flex";
+        const loginM = document.getElementById("loginModal");
+        if(loginM) loginM.style.display = "flex";
+        else alert("Silakan login dulu!");
         return;
     }
 
     try {
         const response = await fetch(`${API_URL}/carts/items`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                product_id: product.id,
-                quantity: 1
-            })
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+            body: JSON.stringify({ product_id: product.product_id || product.id, quantity: 1 })
         });
-
         const data = await response.json();
-
         if (response.ok) {
-            let cart = JSON.parse(localStorage.getItem("cart")) || [];
-            const existing = cart.find(i => i.id == product.id); 
-            if (existing) existing.quantity++;
-            else cart.push({ id: product.id, name: product.name, price: product.price, img: product.img, quantity: 1 });
-            
-            localStorage.setItem("cart", JSON.stringify(cart));
+            // Alert lebih cantik atau biasa
             alert("Berhasil masuk keranjang! 🌸");
             window.location.href = "cart.html";
-        } else {
-            throw new Error(data.error || "Gagal menambah ke keranjang");
-        }
+        } else throw new Error(data.error);
     } catch (err) { alert("Gagal: " + err.message); }
 }
 
 // =========================================================
-// 7. CART PAGE & CHECKOUT
+// 7. CART & CHECKOUT (SAMA SEPERTI SEBELUMNYA)
 // =========================================================
 if (window.location.pathname.includes("cart.html")) renderCartPage();
 
 function renderCartPage() {
     const cartItems = document.querySelector(".cart-items");
     const totalEl = document.getElementById("cartTotal");
-    let cart = JSON.parse(localStorage.getItem("cart")) || [];
     if (!cartItems) return;
-    cartItems.innerHTML = "";
-    let total = 0;
-    if (cart.length === 0) {
-        cartItems.innerHTML = "<p>Keranjang kosong 🌸</p>";
-        if(totalEl) totalEl.textContent = "Rp. 0";
+    
+    const token = localStorage.getItem("token");
+    if(!token) {
+        cartItems.innerHTML = "<p>Silakan login untuk melihat keranjang.</p>";
         return;
     }
-    cart.forEach(item => {
-        const subtotal = item.price * item.quantity;
-        total += subtotal;
-        const div = document.createElement("div");
-        div.className = "cart-item";
-        div.innerHTML = `
-        <div class="cart-left">
-          <a href="product-detail.html?id=${item.id}"><img src="${item.img}" alt="${item.name}"></a>
-          <div class="cart-info"><b>${item.name}</b><p>Ready Stock</p></div>
-        </div>
-        <div class="cart-right">
-          <div class="qty-control"><span>${item.quantity} x</span></div>
-          <b>Rp. ${subtotal.toLocaleString("id-ID")}</b>
-        </div>`;
-        cartItems.appendChild(div);
-    });
-    if(totalEl) totalEl.textContent = `Rp. ${total.toLocaleString("id-ID")}`;
+
+    // Fetch Cart dari Server (Bukan LocalStorage, biar sinkron)
+    fetch(`${API_URL}/carts`, { headers: { 'Authorization': `Bearer ${token}` }})
+    .then(res => res.json())
+    .then(cart => {
+        cartItems.innerHTML = "";
+        let total = 0;
+        if (!cart.CartItems || cart.CartItems.length === 0) {
+            cartItems.innerHTML = "<p>Keranjang kosong 🌸</p>";
+            if(totalEl) totalEl.textContent = "Rp. 0";
+            return;
+        }
+
+        cart.CartItems.forEach(item => {
+            const p = item.Product;
+            const subtotal = parseFloat(p.price) * item.quantity;
+            total += subtotal;
+            
+            let img = p.image_url;
+            if (img && !img.startsWith('http')) img = `${API_URL.replace('/api', '')}/uploads/${img}`;
+
+            cartItems.innerHTML += `
+            <div class="cart-item">
+                <div class="cart-left">
+                    <img src="${img}" alt="${p.product_name}">
+                    <div class="cart-info"><b>${p.product_name}</b><p>Ready Stock</p></div>
+                </div>
+                <div class="cart-right">
+                    <div class="qty-control"><span>${item.quantity} x</span></div>
+                    <b>Rp. ${subtotal.toLocaleString("id-ID")}</b>
+                </div>
+            </div>`;
+        });
+        if(totalEl) totalEl.textContent = `Rp. ${total.toLocaleString("id-ID")}`;
+        
+        // Simpan data cart ke localStorage untuk checkout page
+        localStorage.setItem("checkoutCart", JSON.stringify(cart.CartItems.map(i => ({
+            id: i.product_id,
+            name: i.Product.product_name,
+            price: parseFloat(i.Product.price),
+            img: i.Product.image_url && !i.Product.image_url.startsWith('http') ? `${API_URL.replace('/api', '')}/uploads/${i.Product.image_url}` : i.Product.image_url,
+            quantity: i.quantity
+        }))));
+    })
+    .catch(e => console.error(e));
 }
 
 window.checkoutCart = function() {
-    const cart = JSON.parse(localStorage.getItem("cart")) || [];
-    if (cart.length === 0) return alert("Keranjang kosong!");
-    if (!localStorage.getItem("token")) return alert("Silakan Login dulu!");
-    localStorage.setItem("checkoutCart", JSON.stringify(cart));
+    const token = localStorage.getItem("token");
+    if (!token) return alert("Silakan Login dulu!");
+    // Cek apakah cart kosong lewat localStorage checkoutCart yang baru disimpan
+    const c = JSON.parse(localStorage.getItem("checkoutCart"));
+    if(!c || c.length === 0) return alert("Keranjang kosong!");
+    
     window.location.href = "checkout.html";
 };
 
@@ -404,15 +388,15 @@ if (window.location.pathname.includes("checkout.html")) {
             subtotal += rowTotal;
             itemsContainer.innerHTML += `<div class="checkout-item-row" style="display:flex; justify-content:space-between; margin-bottom:10px;"><div style="display:flex; gap:10px; align-items:center;"><img src="${item.img}" style="width:40px; height:40px; border-radius:4px;"><div><p style="margin:0; font-weight:bold;">${item.name}</p><small>x${item.quantity}</small></div></div><p style="margin:0;">Rp ${rowTotal.toLocaleString("id-ID")}</p></div>`;
         });
-        subtotalEl.textContent = `Rp. ${subtotal.toLocaleString("id-ID")}`;
+        if(subtotalEl) subtotalEl.textContent = `Rp. ${subtotal.toLocaleString("id-ID")}`;
     }
 
     function calculateTotal() {
-        const type = deliveryTypeSelect.value;
+        const type = deliveryTypeSelect ? deliveryTypeSelect.value : "Delivery";
         let deliveryFee = (type === "Delivery") ? 25000 : 0;
         const grandTotal = subtotal + deliveryFee + handlingFee;
-        deliveryEl.textContent = `Rp. ${deliveryFee.toLocaleString("id-ID")}`;
-        totalEl.textContent = `Rp. ${grandTotal.toLocaleString("id-ID")}`;
+        if(deliveryEl) deliveryEl.textContent = `Rp. ${deliveryFee.toLocaleString("id-ID")}`;
+        if(totalEl) totalEl.textContent = `Rp. ${grandTotal.toLocaleString("id-ID")}`;
     }
 
     if (deliveryTypeSelect) {
@@ -427,17 +411,9 @@ if (window.location.pathname.includes("checkout.html")) {
             const token = localStorage.getItem("token");
             const recipientName = document.getElementById("recipientName")?.value;
             const recipientPhone = document.getElementById("recipientPhone")?.value;
-            const senderPhone = document.getElementById("senderPhone")?.value;
-            const address = document.getElementById("address")?.value;
-            const province = document.getElementById("province")?.value;
-            const postalCode = document.getElementById("postalCode")?.value;
-            const deliveryType = document.getElementById("deliveryType")?.value;
             const deliveryDate = document.getElementById("deliveryDate")?.value;
-            const deliveryTime = document.getElementById("deliveryTime")?.value;
-            const messageCard = document.getElementById("checkoutAdditional")?.value;
-
+            
             if (!recipientName || !recipientPhone || !deliveryDate) return alert("Mohon lengkapi Nama, HP, dan Tanggal!");
-            if (deliveryType === "Delivery" && !address) return alert("Alamat wajib diisi untuk Delivery!");
 
             payBtn.textContent = "Processing...";
             payBtn.disabled = true;
@@ -449,23 +425,24 @@ if (window.location.pathname.includes("checkout.html")) {
                     body: JSON.stringify({
                         recipient_name: recipientName,
                         recipient_phone: recipientPhone,
-                        sender_phone: senderPhone || "-",
-                        address_line: address || "Ambil Sendiri",
-                        province: province || "-",
-                        postal_code: postalCode || "-",
-                        delivery_type: deliveryType,
+                        sender_phone: document.getElementById("senderPhone")?.value || "-",
+                        address_line: document.getElementById("address")?.value || "Ambil Sendiri",
+                        province: document.getElementById("province")?.value || "-",
+                        postal_code: document.getElementById("postalCode")?.value || "-",
+                        delivery_type: deliveryTypeSelect ? deliveryTypeSelect.value : "Delivery",
                         delivery_date: deliveryDate,
-                        delivery_time: deliveryTime || "09:00 - 15:00",
-                        message_card: messageCard
+                        delivery_time: document.getElementById("deliveryTime")?.value || "09:00 - 15:00",
+                        message_card: document.getElementById("checkoutAdditional")?.value
                     })
                 });
-                const data = await res.json();
                 if (res.ok) {
                     alert("✅ Pesanan Berhasil!");
-                    localStorage.removeItem("cart");
                     localStorage.removeItem("checkoutCart");
                     window.location.href = "profile.html";
-                } else throw new Error(data.error);
+                } else {
+                    const d = await res.json();
+                    throw new Error(d.error);
+                }
             } catch (err) { alert("Gagal: " + err.message); payBtn.textContent = "PAY NOW"; payBtn.disabled = false; }
         });
     }
