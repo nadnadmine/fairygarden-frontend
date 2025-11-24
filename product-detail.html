@@ -4,88 +4,31 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=1440">
   <title>Product Detail - Fairy Garden</title>
-
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Metal&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
   <link rel="stylesheet" href="style.css">
   
   <style>
-      /* CSS KHUSUS HALAMAN DETAIL */
-      .product-detail-container {
-          padding: 40px 8%;
-          display: flex;
-          gap: 50px;
-          align-items: flex-start;
-          margin-top: 20px;
-      }
-      
-      .product-image {
-          flex: 1;
-          max-width: 500px;
-      }
-      .product-image img {
-          width: 100%;
-          border-radius: 10px;
-          box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      }
-      
-      .product-info {
-          flex: 1;
-      }
-      
-      .product-info h2 {
-          font-family: 'Metal', serif;
-          font-size: 2.5rem;
-          margin-bottom: 10px;
-          color: #333;
-      }
-      
-      .price {
-          font-size: 1.5rem;
-          color: #d63384;
-          font-weight: 600;
-          margin-bottom: 20px;
-      }
-      
-      .desc {
-          line-height: 1.6;
-          color: #555;
-          margin-bottom: 30px;
-          font-size: 1rem;
-      }
-
-      .add-cart {
-          background-color: #333;
-          color: #fff;
-          border: none;
-          padding: 15px 40px;
-          font-size: 1rem;
-          cursor: pointer;
-          transition: 0.3s;
-          border-radius: 5px;
-          width: 100%;
-          font-weight: 600;
-          text-transform: uppercase;
-      }
-      
-      .add-cart:hover {
-          background-color: #555;
-      }
+      .product-detail-container { padding: 40px 8%; display: flex; gap: 50px; align-items: flex-start; margin-top: 20px; }
+      .product-image { flex: 1; max-width: 500px; }
+      .product-image img { width: 100%; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+      .product-info { flex: 1; }
+      .product-info h2 { font-family: 'Metal', serif; font-size: 2.5rem; margin-bottom: 10px; color: #333; }
+      .price { font-size: 1.5rem; color: #d63384; font-weight: 600; margin-bottom: 20px; }
+      .desc { line-height: 1.6; color: #555; margin-bottom: 30px; font-size: 1rem; }
+      .add-cart { background-color: #333; color: #fff; border: none; padding: 15px 40px; font-size: 1rem; cursor: pointer; transition: 0.3s; border-radius: 5px; width: 100%; font-weight: 600; text-transform: uppercase; }
+      .add-cart:hover { background-color: #555; }
   </style>
 </head>
 
 <body>
-  
   <div id="auth-container"></div>
-
   <header>
     <h1 class="logo">Fairy Garden</h1>
     <nav>
       <ul>
         <li><a href="index.html">Home</a></li>
-        <li class="dropdown">
-          <a href="#">Occasions</a>
+        <li class="dropdown"><a href="#">Occasions</a>
           <ul class="dropdown-menu">
             <li><a href="occasions.html?category=birthday">Birthday</a></li>
             <li><a href="occasions.html?category=mothersday">Mother’s Day</a></li>
@@ -105,37 +48,25 @@
   </header>
 
   <div class="product-detail-container">
-    <div class="product-image">
-      <img src="" alt="Loading...">
-    </div>
-    
+    <div class="product-image"><img src="" alt="Loading..."></div>
     <div class="product-info">
       <h2>Nama Produk</h2>
       <div class="price">Rp 0</div>
-      
       <p class="desc">Deskripsi produk...</p>
-
-      <button class="add-cart">ADD TO CART</button>
       
-      <p style="margin-top:20px; font-size:12px; color:#888;">
-        *Detail pengiriman & kartu ucapan diisi saat Checkout.
-      </p>
+      <button class="add-cart">ADD TO CART</button>
+      <p style="margin-top:20px; font-size:12px; color:#888;">*Detail pengiriman & kartu ucapan diisi saat Checkout.</p>
     </div>
   </div>
 
   <footer>
     <p><b>YOU CAN FIND US ON</b></p>
-    <p><i class="fa-brands fa-instagram"></i> @fairygarden &nbsp;&nbsp;
-       <i class="fa-regular fa-envelope"></i> fairygarden@gmail.com</p>
+    <p><i class="fa-brands fa-instagram"></i> @fairygarden &nbsp;&nbsp; <i class="fa-regular fa-envelope"></i> fairygarden@gmail.com</p>
   </footer>
 
   <script src="script.js"></script>
   <script>
-    // Load Modal Auth
-    fetch("modal-auth.html").then(res=>res.text()).then(html=>{
-      document.getElementById("auth-container").innerHTML = html;
-    });
+    fetch("modal-auth.html").then(res=>res.text()).then(html=>{ document.getElementById("auth-container").innerHTML = html; });
   </script>
-
 </body>
 </html>

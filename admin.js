@@ -239,13 +239,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
- function renderOrders() {
-  const users = JSON.parse(localStorage.getItem("users")) || [];
-  const content = document.getElementById("contentArea");
-
-  let searchValue = "";
-  let sortValue = "latest";
-
   // --- UI ATAS ---
   content.innerHTML = `
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -424,7 +417,8 @@ document.addEventListener("DOMContentLoaded", () => {
         { id: "evening-charm", name: "Evening Charm", price: 310000, category: "graduation", img: "https://i.pinimg.com/1200x/7c/e7/77/7ce777fc884d61cb2bdb9b70c7e2b407.jpg", sold: 90, stock: 10 },
         { id: "peach-blossom", name: "Peach Blossom", price: 280000, category: "mothersday", img: "https://i.pinimg.com/1200x/3f/2e/13/3f2e131e40a21ee150c3dc15b1aeb0c3.jpg", sold: 45, stock: 15 }
       ];
-      localStorage.setItem("products", JSON.stringify(products));
+      localStorage.setItem("products", JSON.stringify(defaultProducts));
+      products = defaultProducts;
     }
 
     let rows = products.map((p, i) => `
@@ -544,7 +538,7 @@ document.addEventListener("DOMContentLoaded", () => {
           document.getElementById("productPrice").value = product.price;
           document.getElementById("productImg").value = product.img;
           document.getElementById("productId").value = product.id;
-          document.getElementedById("productDesc").value = product.desc || "";
+          document.getElementById("productDesc").value = product.desc || "";
           document.getElementById("productModal").style.display = "flex";
         }
       });
@@ -558,7 +552,6 @@ document.addEventListener("DOMContentLoaded", () => {
           let products = JSON.parse(localStorage.getItem("products")) || [];
           products = products.filter(p => p.id !== id);
           localStorage.setItem("products", JSON.stringify(products));
-          products = defaultProducts;
           renderProducts();
         }
       });
