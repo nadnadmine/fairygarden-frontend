@@ -51,41 +51,35 @@ async function loadProducts() {
 loadProducts(); 
 
 // =========================================================
-// 3. GLOBAL LISTENERS (VERSI DEBUG & PEKA)
+// 3. GLOBAL LISTENERS (VERSI FINAL & FLEKSIBEL)
 // =========================================================
 document.addEventListener("click", (e) => {
     
-    // --- A. LOGIC TOMBOL USER (PROFILE) ---
-    // Gunakan .closest() untuk menangkap klik baik di Icon maupun di Link pembungkusnya
+    // --- A. TOMBOL USER / PROFIL ---
     const userBtn = e.target.closest("#userButton") || e.target.closest(".fa-user");
 
     if (userBtn) {
-        e.preventDefault(); // Mencegah halaman melompat ke atas (href="#")
-        console.log("✅ Tombol User DIKLIK!"); // Cek di Console Browser
-
+        e.preventDefault(); 
         const token = localStorage.getItem("token");
         const userData = JSON.parse(localStorage.getItem("userData") || "{}");
 
         if (token) {
-            console.log("Status: Sudah Login -> Redirect");
             if (userData.role === 'admin') window.location.href = "admin.html";
             else window.location.href = "profile.html";
         } else {
-            console.log("Status: Belum Login -> Buka Modal");
             const modal = document.getElementById("loginModal");
             if (modal) modal.style.display = "flex";
-            else alert("Modal Login tidak ditemukan! Cek koneksi internet.");
         }
-        return; // Stop eksekusi agar tidak bentrok dengan logic lain
+        return; 
     }
 
-    // --- B. LOGIC TOMBOL TUTUP MODAL (X) ---
+    // --- B. TOMBOL TUTUP MODAL (X) ---
     if (e.target.matches(".close-btn")) {
         const modal = e.target.closest(".modal");
         if (modal) modal.style.display = "none";
     }
 
-    // --- C. LOGIC KLIK BACKGROUND MODAL (TUTUP) ---
+    // --- C. KLIK BACKGROUND MODAL (TUTUP) ---
     if (e.target.classList.contains("modal")) {
         e.target.style.display = "none";
     }
@@ -93,22 +87,22 @@ document.addEventListener("click", (e) => {
     // --- D. SWITCH LOGIN <-> REGISTER ---
     if (e.target.matches(".signup-link")) {
         e.preventDefault();
-        const loginM = document.getElementById("loginModal");
-        const signupM = document.getElementById("signupModal");
-        if(loginM) loginM.style.display = "none";
-        if(signupM) signupM.style.display = "flex";
+        document.getElementById("loginModal").style.display = "none";
+        document.getElementById("signupModal").style.display = "flex";
     }
     if (e.target.matches(".login-link")) {
         e.preventDefault();
-        const loginM = document.getElementById("loginModal");
-        const signupM = document.getElementById("signupModal");
-        if(signupM) signupM.style.display = "none";
-        if(loginM) loginM.style.display = "flex";
+        document.getElementById("signupModal").style.display = "none";
+        document.getElementById("loginModal").style.display = "flex";
     }
 
-    // --- E. TOMBOL LOGIN (DI DALAM MODAL) ---
-    if (e.target.matches(".login-btn") && e.target.id === "mainLoginBtn") {
-        handleLogin(e);
+    // --- E. TOMBOL LOGIN (DI DALAM MODAL) --- 
+    // PERBAIKAN: Cek apakah tombol punya class 'login-btn' DAN ada di dalam modal Login
+    if (e.target.matches(".login-btn") && e.target.closest("#loginModal")) {
+        // Pastikan ini tombol, bukan link biasa
+        if (e.target.tagName === 'BUTTON') {
+            handleLogin(e);
+        }
     }
 });
 
@@ -117,12 +111,18 @@ document.addEventListener("click", (e) => {
 // =========================================================
 async function handleLogin(e) {
     e.preventDefault();
-    // Cari input SECARA DINAMIS (karena modal baru muncul)
-    const emailInput = document.querySelector("#loginModal input[type='email']");
-    const passInput = document.querySelector("#loginModal input[type='password']");
     
+    // Cari input YANG ADA DI DALAM MODAL LOGIN SAJA
+    // (Biar tidak tertukar dengan input di modal Signup)
+    const modal = document.getElementById("loginModal");
+    const emailInput = modal.querySelector("input[type='email']");
+    const passInput = modal.querySelector("input[type='password']");
+    
+    // Ambil nilainya
     const email = emailInput ? emailInput.value.trim() : "";
     const password = passInput ? passInput.value.trim() : "";
+
+    console.log("Mencoba Login:", email); // Cek di Console
 
     if (!email || !password) return alert("Isi email & password");
 
@@ -133,6 +133,7 @@ async function handleLogin(e) {
             body: JSON.stringify({email, password})
         });
         const data = await res.json();
+        
         if (res.ok) {
             localStorage.setItem("token", data.token);
             localStorage.setItem("isLoggedIn", "true");
@@ -142,13 +143,17 @@ async function handleLogin(e) {
             alert(`Halo, ${fName}!`);
             
             // Tutup modal
-            const loginM = document.getElementById("loginModal");
-            if(loginM) loginM.style.display = "none";
+            modal.style.display = "none";
 
             if(data.user.role === 'admin') window.location.href = "admin.html";
             else window.location.href = "profile.html";
-        } else alert(data.error || "Login Gagal");
-    } catch (err) { alert("Gagal koneksi server"); }
+        } else {
+            alert(data.error || "Login Gagal. Cek email/password.");
+        }
+    } catch (err) { 
+        console.error(err);
+        alert("Gagal koneksi server"); 
+    }
 }
 
 // Event Listener Khusus Form Signup (Delegated)
