@@ -51,13 +51,12 @@ async function loadProducts() {
 loadProducts(); 
 
 // =========================================================
-// 3. GLOBAL LISTENERS (VERSI FINAL & FLEKSIBEL)
+// 3. GLOBAL LISTENERS (UPDATE BAGIAN LOGIN)
 // =========================================================
 document.addEventListener("click", (e) => {
     
-    // --- A. TOMBOL USER / PROFIL ---
+    // A. TOMBOL USER / PROFIL
     const userBtn = e.target.closest("#userButton") || e.target.closest(".fa-user");
-
     if (userBtn) {
         e.preventDefault(); 
         const token = localStorage.getItem("token");
@@ -73,18 +72,13 @@ document.addEventListener("click", (e) => {
         return; 
     }
 
-    // --- B. TOMBOL TUTUP MODAL (X) ---
-    if (e.target.matches(".close-btn")) {
-        const modal = e.target.closest(".modal");
-        if (modal) modal.style.display = "none";
+    // B. TOMBOL TUTUP MODAL
+    if (e.target.matches(".close-btn") || e.target.classList.contains("modal")) {
+        const modal = e.target.closest(".modal") || e.target;
+        modal.style.display = "none";
     }
 
-    // --- C. KLIK BACKGROUND MODAL (TUTUP) ---
-    if (e.target.classList.contains("modal")) {
-        e.target.style.display = "none";
-    }
-
-    // --- D. SWITCH LOGIN <-> REGISTER ---
+    // C. SWITCH LOGIN <-> REGISTER
     if (e.target.matches(".signup-link")) {
         e.preventDefault();
         document.getElementById("loginModal").style.display = "none";
@@ -96,41 +90,42 @@ document.addEventListener("click", (e) => {
         document.getElementById("loginModal").style.display = "flex";
     }
 
-    // --- E. TOMBOL LOGIN (DI DALAM MODAL) --- 
-    // PERBAIKAN: Cek apakah tombol punya class 'login-btn' DAN ada di dalam modal Login
-    if (e.target.matches(".login-btn") && e.target.closest("#loginModal")) {
-        // Pastikan ini tombol, bukan link biasa
-        if (e.target.tagName === 'BUTTON') {
-            handleLogin(e);
-        }
+    // D. TOMBOL LOGIN (DENGAN ID BARU)
+    // Kita gunakan .closest() agar jika user klik teks atau pinggiran tombol tetap kena
+    const btnLogin = e.target.closest("#btnSubmitLogin");
+    
+    if (btnLogin) {
+        console.log("🖱️ Tombol Login di Modal DIKLIK!");
+        handleLogin(e);
     }
 });
 
 // =========================================================
-// 4. LOGIC LOGIN & REGISTER (FUNGSI TERPISAH)
+// 4. LOGIC LOGIN (UPDATE ID INPUT)
 // =========================================================
 async function handleLogin(e) {
     e.preventDefault();
     
-    // Cari input YANG ADA DI DALAM MODAL LOGIN SAJA
-    // (Biar tidak tertukar dengan input di modal Signup)
-    const modal = document.getElementById("loginModal");
-    const emailInput = modal.querySelector("input[type='email']");
-    const passInput = modal.querySelector("input[type='password']");
+    // Ambil input berdasarkan ID yang sudah kita pastikan ada di modal-auth.html
+    const emailVal = document.getElementById("inputEmailLogin")?.value.trim();
+    const passVal = document.getElementById("inputPassLogin")?.value.trim();
     
-    // Ambil nilainya
-    const email = emailInput ? emailInput.value.trim() : "";
-    const password = passInput ? passInput.value.trim() : "";
+    // Fallback jika ID tidak ketemu (jaga-jaga), cari manual di dalam modal
+    const finalEmail = emailVal || document.querySelector("#loginModal input[type='email']")?.value.trim();
+    const finalPass = passVal || document.querySelector("#loginModal input[type='password']")?.value.trim();
 
-    console.log("Mencoba Login:", email); // Cek di Console
+    console.log("📧 Mencoba Login dengan:", finalEmail); 
 
-    if (!email || !password) return alert("Isi email & password");
+    if (!finalEmail || !finalPass) return alert("Mohon isi email & password");
+
+    const btn = document.getElementById("btnSubmitLogin");
+    if(btn) { btn.textContent = "Loading..."; btn.disabled = true; }
 
     try {
         const res = await fetch(`${API_URL}/auth/login`, {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({email, password})
+            body: JSON.stringify({email: finalEmail, password: finalPass})
         });
         const data = await res.json();
         
@@ -140,47 +135,22 @@ async function handleLogin(e) {
             localStorage.setItem("userData", JSON.stringify(data.user)); 
             
             const fName = data.user.first_name || data.user.firstName || "User";
-            alert(`Halo, ${fName}!`);
+            alert(`✅ Login Berhasil! Halo, ${fName}!`);
             
-            // Tutup modal
-            modal.style.display = "none";
+            document.getElementById("loginModal").style.display = "none";
 
             if(data.user.role === 'admin') window.location.href = "admin.html";
             else window.location.href = "profile.html";
         } else {
-            alert(data.error || "Login Gagal. Cek email/password.");
+            alert("❌ " + (data.error || "Email/Password Salah"));
+            if(btn) { btn.textContent = "LOG IN"; btn.disabled = false; }
         }
     } catch (err) { 
         console.error(err);
-        alert("Gagal koneksi server"); 
+        alert("⚠️ Gagal koneksi ke server"); 
+        if(btn) { btn.textContent = "LOG IN"; btn.disabled = false; }
     }
 }
-
-// Event Listener Khusus Form Signup (Delegated)
-document.addEventListener("submit", async (e) => {
-    if (e.target.id === "signupForm") {
-        e.preventDefault();
-        const firstName = document.getElementById("firstName").value;
-        const lastName = document.getElementById("lastName").value;
-        const phone = document.getElementById("phone").value;
-        const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
-
-        try {
-            const res = await fetch(`${API_URL}/auth/register`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ first_name: firstName, last_name: lastName, phone, email, password })
-            });
-            const data = await res.json();
-            if (res.ok) {
-                alert("Register Berhasil! Silakan Login.");
-                document.getElementById("signupModal").style.display = "none";
-                document.getElementById("loginModal").style.display = "flex";
-            } else alert(data.error);
-        } catch (err) { alert("Error koneksi"); }
-    }
-});
 
 // =========================================================
 // 5. HALAMAN PROFILE
