@@ -18,59 +18,61 @@
     <h2 class="section-title">Our Products</h2>
     
     <div id="viewall-grid" class="products-grid">
-        <p style="text-align:center; width:100%;">Sedang mengambil bunga cantik untukmu...</p>
+        <p style="text-align:center; width:100%; padding: 20px;">Sedang mengambil bunga cantik untukmu...</p>
     </div>
   </section>
 
   <footer>
     <p><b>YOU CAN FIND US ON</b></p>
-    <p><i class="fa-brands fa-instagram"></i> @fairygarden &nbsp;&nbsp; <i class="fa-regular fa-envelope"></i> fairygarden@gmail.com</p>
+    <p><i class="fa-brands fa-instagram"></i> @fairygarden    <i class="fa-regular fa-envelope"></i> fairygarden@gmail.com</p>
   </footer>
 
   <script src="script.js"></script>
   
   <script>
-    // Load Header & Auth
-    fetch("header.html").then(res=>res.text()).then(html=>{ 
+    // 1. Load Header
+    fetch("header.html")
+      .then(res => res.text())
+      .then(html => {
         document.getElementById("header-container").innerHTML = html;
-        // Re-attach user icon event (karena header baru diload)
-        const userBtn = document.querySelector(".fa-user");
-        if(userBtn) {
-            userBtn.parentElement.addEventListener("click", (e) => {
-                e.preventDefault();
-                const token = localStorage.getItem("token");
-                if(token) window.location.href="profile.html";
-                else document.getElementById("loginModal").style.display="flex";
-            });
-        }
-    });
-    fetch("modal-auth.html").then(res=>res.text()).then(html=>{ document.getElementById("auth-container").innerHTML = html; });
+        // TIDAK PERLU nambah event listener userButton disini lagi.
+        // script.js sudah menanganinya secara global (Global Listener).
+      });
 
-    // === LOGIC RENDER PRODUK (DARI DATABASE) ===
+    // 2. Load Modal Auth
+    fetch("modal-auth.html")
+      .then(res => res.text())
+      .then(html => {
+        document.getElementById("auth-container").innerHTML = html;
+      });
+
+    // 3. Logic Render Produk (Khusus Halaman Ini)
     document.addEventListener("DOMContentLoaded", async () => {
         const grid = document.getElementById("viewall-grid");
         if (!grid) return;
 
         try {
+            // Ambil Data Terbaru dari Server
             const res = await fetch("https://fairygarden-backend.vercel.app/api/products");
             if(!res.ok) throw new Error("Gagal fetch");
             const products = await res.json();
 
-            grid.innerHTML = ""; // Hapus loading
+            grid.innerHTML = ""; // Bersihkan loading
 
             if(products.length === 0) {
-                grid.innerHTML = "<p>Belum ada produk.</p>";
+                grid.innerHTML = "<p style='text-align:center; width:100%;'>Belum ada produk.</p>";
                 return;
             }
 
+            // Render Kartu Produk
             products.forEach(p => {
-                // Fix Image
+                // Fix Gambar URL
                 let img = p.image_url;
                 if(img && !img.startsWith('http')) {
-                    img = "https://fairygarden-backend.vercel.app/api/uploads/" + img;
+                    img = "https://fairygarden-backend.vercel.app/uploads/" + img;
                 }
 
-                // Render Card (Link pakai product_id angka)
+                // Gunakan ID Angka untuk link
                 grid.innerHTML += `
                     <a href="product-detail.html?id=${p.product_id}" class="product-card">
                       <div class="product-box">
@@ -83,7 +85,7 @@
             });
 
         } catch (err) {
-            grid.innerHTML = "<p>Gagal memuat produk.</p>";
+            grid.innerHTML = "<p style='text-align:center; width:100%;'>Gagal memuat produk. Cek koneksi.</p>";
             console.error(err);
         }
     });
